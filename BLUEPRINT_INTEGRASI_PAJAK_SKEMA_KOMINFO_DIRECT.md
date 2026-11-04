@@ -100,42 +100,34 @@ sequenceDiagram
     JSSServer->>JSSServer: Ekstrak NIK Terverifikasi dari Akun JSS
 
     %% Step 1: Get By NIK
-    rect rgb(30, 41, 59)
-        note over JSSServer, SAM: 1. Get Data by NIK (Validasi Pemilik)
-        JSSServer->>SAM: GET /api/v1/wajib-pajak?nik={nik_user_jss}
-        SAM-->>JSSServer: 200 OK (Nama, Alamat, Status Wajib Pajak)
-    end
+    note over JSSServer, SAM: 1. Get Data by NIK (Validasi Pemilik)
+    JSSServer->>SAM: GET /api/v1/wajib-pajak?nik={nik_user_jss}
+    SAM-->>JSSServer: 200 OK (Nama, Alamat, Status Wajib Pajak)
 
     %% Step 2: Get List Nopol
-    rect rgb(15, 45, 35)
-        note over JSSServer, SAM: 2. Get List Nopol Terdaftar
-        JSSServer->>SAM: GET /api/v1/kendaraan?nik={nik_user_jss}
-        SAM-->>JSSServer: 200 OK: List Kendaraan [Nopol, Merk, Tipe, Masa Pajak]
-        JSSServer-->>JSSApp: Kirim List Nopol
-        JSSApp-->>WP: Tampilkan Daftar Kendaraan Milik User
-    end
+    note over JSSServer, SAM: 2. Get List Nopol Terdaftar
+    JSSServer->>SAM: GET /api/v1/kendaraan?nik={nik_user_jss}
+    SAM-->>JSSServer: 200 OK: List Kendaraan [Nopol, Merk, Tipe, Masa Pajak]
+    JSSServer-->>JSSApp: Kirim List Nopol
+    JSSApp-->>WP: Tampilkan Daftar Kendaraan Milik User
 
     %% Step 3: Get List Tahun by Nopol
-    rect rgb(45, 35, 15)
-        note over WP, SAM: 3. Get List Tahun by Nopol
-        WP->>JSSApp: Pilih Salah Satu Nopol
-        JSSApp->>JSSServer: Request Tagihan per Nopol { nopol }
-        JSSServer->>SAM: GET /api/v1/pajak/tahun?nopol={nopol}
-        SAM-->>JSSServer: 200 OK: List Tahun Tertunggak/Berjalan [2025, 2026]
-        JSSServer-->>JSSApp: Kirim Opsi Tahun Pajak
-        JSSApp-->>WP: Tampilkan Pilihan Periode/Tahun Pajak
-    end
+    note over WP, SAM: 3. Get List Tahun by Nopol
+    WP->>JSSApp: Pilih Salah Satu Nopol
+    JSSApp->>JSSServer: Request Tagihan per Nopol { nopol }
+    JSSServer->>SAM: GET /api/v1/pajak/tahun?nopol={nopol}
+    SAM-->>JSSServer: 200 OK: List Tahun Tertunggak/Berjalan [2025, 2026]
+    JSSServer-->>JSSApp: Kirim Opsi Tahun Pajak
+    JSSApp-->>WP: Tampilkan Pilihan Periode/Tahun Pajak
 
     %% Step 4: Get Detail Pajak
-    rect rgb(45, 20, 20)
-        note over WP, SAM: 4. Get Detail Pajak untuk Nopol Terpilih
-        WP->>JSSApp: Pilih Tahun Pajak & Konfirmasi
-        JSSApp->>JSSServer: Request Rincian { nopol, tahun }
-        JSSServer->>SAM: GET /api/v1/pajak/detail?nopol={nopol}&tahun={tahun}
-        SAM-->>JSSServer: 200 OK: Rincian Pajak (PKB, SWDKLLJ, PNBP, Denda, Total)
-        JSSServer-->>JSSApp: Return Rincian Tagihan
-        JSSApp-->>WP: Tampilkan Ringkasan Tagihan & Tombol "Bayar QRIS"
-    end
+    note over WP, SAM: 4. Get Detail Pajak untuk Nopol Terpilih
+    WP->>JSSApp: Pilih Tahun Pajak & Konfirmasi
+    JSSApp->>JSSServer: Request Rincian { nopol, tahun }
+    JSSServer->>SAM: GET /api/v1/pajak/detail?nopol={nopol}&tahun={tahun}
+    SAM-->>JSSServer: 200 OK: Rincian Pajak (PKB, SWDKLLJ, PNBP, Denda, Total)
+    JSSServer-->>JSSApp: Return Rincian Tagihan
+    JSSApp-->>WP: Tampilkan Ringkasan Tagihan & Tombol "Bayar QRIS"
 ```
 
 ---
