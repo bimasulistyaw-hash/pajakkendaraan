@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype Mobile PKB - JSS (Jogja Smart Service) x Samsat DIY x Bank BPD DIY</title>
+  <!-- Tailwind CSS -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* JSS Signature Colors & Styling */
+    :root {
+      --jss-blue-dark: #073b75;
+      --jss-blue: #084c94;
+      --jss-blue-light: #0a60bd;
+      --jss-gold: #f59e0b;
+      --jss-gold-dark: #d97706;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .jss-bg-primary { background: linear-gradient(135deg, #073b75 0%, #084c94 60%, #0b5fb8 100%); }
+    .jss-badge-gold { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: 1px solid #fcd34d; }
+    
+    /* Watermark for mobile e-SKKP */
+    .eskkp-watermark {
+      background-image: radial-gradient(#084c94 0.75px, transparent 0.75px);
+      background-size: 12px 12px;
+    }
+  </style>
+</head>
+<body id="bodyRoot" class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased p-3 md:p-6 flex flex-col justify-between transition-colors duration-200">
+
+  <!-- TOP HEADER FOR MEETING PRESENTER (CLEAN EXECUTIVE WHITE THEME) -->
+  <header id="mainHeader" class="max-w-7xl mx-auto w-full mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm backdrop-blur">
+    <div class="flex items-center gap-3">
+      <!-- JSS Brand Badge -->
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#073b75] via-[#084c94] to-[#0a60bd] border border-blue-400/40 flex flex-col items-center justify-center font-black text-white shadow-md">
+        <span class="text-xs tracking-wider leading-none">JSS</span>
+        <span class="text-[7px] text-amber-300 font-medium tracking-tighter scale-90">JOGJA</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-bold text-base md:text-lg text-slate-900">Prototype Integrasi Pajak Kendaraan (PKB) JSS</h1>
+          <span class="px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-[#084c94] border border-blue-200 font-bold uppercase tracking-wider">
+            Tema Eksekutif Clean White
+          </span>
+        </div>
+        <p class="text-xs text-slate-500">
+          Simulasi Portal Warga <strong class="text-[#084c94]">Jogja Smart Service (jss.jogjakota.go.id)</strong> ⇄ <strong class="text-slate-800">Samsat DIY</strong> ⇄ <strong class="text-emerald-700">Bank BPD DIY</strong>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Controls & Presenter Modes -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Theme Switcher (White Clean vs Dark) -->
+      <button onclick="toggleTheme()" id="btnThemeToggle" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition shadow-2xs">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Mode Gelap</span>
+      </button>
+
+      <!-- Toggle Panel Log API -->
+      <button id="btnToggleLog" onclick="toggleTracePanel()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition shadow-2xs">
+        <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        <span id="logToggleLabel">Sembunyikan Panel Log API</span>
+      </button>
+
+      <!-- Reset Button -->
+      <button onclick="resetAllState()" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-bold text-rose-700 flex items-center gap-1.5 transition shadow-2xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Reset Simulasi
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER (SPLIT: MOBILE DEVICE & ARCHITECTURE TRACE) -->
+  <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1 mb-4">
+    
+    <!-- LEFT: MOBILE DEVICE SIMULATOR (JSS APP REALISTIC THEME) -->
+    <section class="lg:col-span-5 flex justify-center w-full">
+      
+      <!-- MOBILE FRAME (SMARTPHONE MOCKUP DENGAN BINGKAI TITANIUM SHADOW ELEGAN) -->
+      <div id="phoneBezel" class="w-full max-w-[390px] h-[780px] bg-slate-800 rounded-[48px] p-3 shadow-2xl border-4 border-slate-700 relative flex flex-col overflow-hidden ring-4 ring-slate-200">
+        
+        <!-- Smartphone Notch / Dynamic Island -->
+        <div class="absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-50 flex items-center justify-center">
+          <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800 ml-auto mr-3"></div>
+        </div>
+
+        <!-- Phone Screen Container (JSS LIGHT THEME WITH JSS BLUE HERO) -->
+        <div class="w-full h-full bg-[#f8fafc] rounded-[38px] overflow-hidden flex flex-col relative text-slate-800 border border-slate-300">
+          
+          <!-- STATUS BAR (OVER JSS BLUE HEADER) -->
+          <div class="pt-3 px-6 pb-1 flex justify-between items-center text-[11px] font-semibold text-white select-none z-40 bg-[#073b75]">
+            <span id="liveClock">09:41</span>
+            <div class="flex items-center gap-1.5 opacity-90">
+              <span>5G</span>
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zm-2.829 2.828a3 3 0 00-4.242 0 1 1 0 01-1.415-1.414 5 5 0 017.072 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+              <div class="w-4 h-2 border border-white rounded-sm p-0.5 flex items-center">
+                <div class="w-full h-full bg-white rounded-2xs"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOP APP BAR (JSS SIGNATURE BLUE GRADIENT & LOGO) -->
+          <div class="px-4 py-2.5 jss-bg-primary text-white border-b border-blue-900/30 flex items-center justify-between z-30 shadow-md">
+            <div class="flex items-center gap-2">
+              <button id="btnBackScreen" onclick="goBackScreen()" class="p-1 rounded-full hover:bg-white/10 text-white hidden transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              
+              <!-- JSS Badge in App -->
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white/15 border border-white/20 flex flex-col items-center justify-center font-black text-white shadow-inner">
+                  <span class="text-[10px] leading-tight">JSS</span>
+                </div>
+                <div>
+                  <h2 id="screenTitle" class="text-xs font-bold text-white leading-tight">Jogja Smart Service</h2>
+                  <p id="screenSubTitle" class="text-[9.5px] text-blue-200/90 leading-none">Pajak Kendaraan (SAMSAT DIY)</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1" id="topBarRightBadge">
+              <span class="px-2 py-0.5 rounded-full text-[9px] bg-amber-400 text-blue-950 font-bold border border-amber-300 shadow-sm">
+                QRIS BPD DIY
+              </span>
+            </div>
+          </div>
+
+          <!-- APP VIEWPORT CONTENT (DYNAMIC SCREENS) -->
+          <div id="phoneContent" class="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs bg-slate-50 relative">
+
+            <!-- ================= SCREEN 1: DAFTAR KENDARAAN (BERBASIS NIK SSO) ================= -->
+            <div id="screenVehicles" class="space-y-3.5">
+              
+              <!-- Profil User JSS (Balaikota Virtual Identity) -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#084c94]/10 border border-[#084c94]/30 flex items-center justify-center text-[#084c94] font-black text-xs shadow-inner">
+                    DP
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <p class="font-bold text-slate-900 truncate text-xs">Raden Mas Danang P.</p>
+                      <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full font-semibold border border-emerald-300">
+                        ✓ Terverifikasi
+                      </span>
+                    </div>
+                    <p class="text-[10.5px] text-slate-500 font-mono mt-0.5">NIK: <span class="text-slate-800 font-semibold">347101******0002</span></p>
+                    <p class="text-[9px] text-[#084c94] font-medium flex items-center gap-1 mt-0.5">
+                      <span>🏛️ Balaikota Virtual Kota Yogyakarta</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Banner Sinergi Pemda DIY -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-2.5 text-[11px] text-[#073b75] flex items-start gap-2 shadow-2xs">
+                <svg class="w-4 h-4 text-[#084c94] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                <p class="leading-snug">
+                  Data kendaraan otomatis disinkronkan langsung dari <strong>Database Samsat DIY</strong> menggunakan identitas NIK JSS Anda yang telah terverifikasi.
+                </p>
+              </div>
+
+              <!-- List Kendaraan -->
+              <div>
+                <div class="flex justify-between items-center mb-2 px-0.5">
+                  <h3 class="font-bold text-slate-800 text-xs">Kendaraan Anda di DIY (2)</h3>
+                  <span class="text-[10px] text-[#084c94] font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Data Samsat
+                  </span>
+                </div>
+
+                <!-- Kendaraan 1: Vario (Klik untuk buka daftar tahun akumulasi) -->
+                <div onclick="selectVehicleToYears('AB 2481 XZ')" class="cursor-pointer group bg-white hover:bg-amber-50/40 border border-amber-300 hover:border-amber-400 rounded-xl p-3 mb-2.5 transition shadow-sm relative overflow-hidden">
+                  <div class="absolute right-0 top-0 w-16 h-16 bg-amber-400/10 rounded-bl-full pointer-events-none"></div>
+                  
+                  <div class="flex justify-between items-start mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono font-bold text-xs px-2.5 py-0.5 bg-slate-900 border border-slate-700 text-white rounded-md tracking-wider shadow-2xs">
+                        AB 2481 XZ
+                      </span>
+                      <span class="text-[9px] px-2 py-0.5 bg-rose-100 text-rose-700 border border-rose-300 rounded-full font-bold">
+                        Menunggak 2 Thn
+                      </span>
+                    </div>
+                    <span class="text-xs font-black text-rose-600">Rp 750.000</span>
+                  </div>
+                  
+                  <p class="font-bold text-slate-800 text-xs">Honda Vario 160 ABS (2022)</p>
+                  
+                  <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-500">
+                    <span>Masa Pajak: <strong class="text-slate-800">28 Nov 2026</strong> <span class="text-amber-700 font-semibold">(2 Thn Akumulasi)</span></span>
+                    <span class="text-[#084c94] font-bold group-hover:translate-x-0.5 transition flex items-center gap-1">
+                      Pilih Tahun Pajak →
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Kendaraan 2: Avanza (Klik untuk buka daftar tahun) -->
+                <div onclick="selectVehicleToYears('AB 1892 YQ')" class="cursor-pointer group bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl p-3 transition shadow-sm">
+                  <div class="flex justify-between items-start mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono font-bold text-xs px-2.5 py-0.5 bg-slate-900 border border-slate-700 text-white rounded-md tracking-wider">
+                        AB 1892 YQ
+                      </span>
+                      <span class="text-[9.5px] px-2 py-0.5 jss-badge-gold rounded-full font-bold">
+                        Ada Tagihan
+                      </span>
+                    </div>
+                    <span class="text-xs font-black text-[#084c94]">1 Periode Berjalan</span>
+                  </div>
+                  <p class="font-medium text-slate-700 text-xs">Toyota Avanza 1.5 G MT (2021)</p>
+                  <div class="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400">
+                    <span>Masa Pajak: 15 Apr 2027</span>
+                    <span class="text-slate-500 group-hover:text-[#084c94] font-bold transition">Pilih Tahun Pajak →</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info BPD DIY Partner Banner -->
+              <div class="p-2.5 rounded-xl bg-blue-900/5 border border-blue-900/10 text-center">
+                <p class="text-[10px] text-slate-600 font-medium">Mitra Gerbang Pembayaran Resmi</p>
+                <div class="flex justify-center items-center gap-2 mt-1">
+                  <span class="text-[10.5px] font-extrabold text-[#073b75] tracking-wide">BANK BPD DIY</span>
+                  <span class="text-slate-300">|</span>
+                  <span class="text-[10px] font-bold text-red-600 tracking-wider">QRIS ASPI</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= SCREEN 2: DAFTAR TAHUN PAJAK (BELUM DI ATAS, SUDAH DI BAWAH) ================= -->
+            <div id="screenYears" class="space-y-3.5 hidden">
+              
+              <!-- Card Identitas Kendaraan Terpilih -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span id="yearsNopolBadge" class="font-mono font-bold text-xs px-2.5 py-0.5 bg-slate-900 text-white rounded-md tracking-wider">
+                      AB 2481 XZ
+                    </span>
+                    <span id="yearsModelBadge" class="text-[11px] font-bold text-slate-800">Honda Vario 160 ABS</span>
+                  </div>
+                  <p class="text-[9.5px] text-slate-500">Pilih periode masa pajak yang akan diproses:</p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[#084c94]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+              </div>
+
+              <!-- BAGIAN 1 (ATAS): DAFTAR TAHUN BELUM TERBAYAR (ADA TOMBOL BAYAR QRIS) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between px-0.5">
+                  <h4 class="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    Tagihan Belum Terbayar (Tertunggak / Berjalan)
+                  </h4>
+                  <span class="text-[9.5px] text-amber-700 font-semibold">Wajib Dilunasi</span>
+                </div>
+
+                <!-- Dynamic Container for Unpaid Years -->
+                <div id="unpaidYearsContainer" class="space-y-2">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+
+              <!-- BAGIAN 2 (BAWAH): DAFTAR TAHUN SUDAH TERBAYAR (RIWAYAT LUNAS - HANYA LIHAT BUKTI) -->
+              <div class="space-y-2 pt-2 border-t border-slate-200">
+                <div class="flex items-center justify-between px-0.5">
+                  <h4 class="font-bold text-xs text-slate-700 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Riwayat Pembayaran (Sudah Terbayar / Lunas)
+                  </h4>
+                  <span class="text-[9.5px] text-emerald-700 font-semibold">Arsip Sah Samsat</span>
+                </div>
+
+                <!-- Dynamic Container for Paid Years -->
+                <div id="paidYearsContainer" class="space-y-2">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ================= SCREEN 3: DETAIL PAJAK & RINCIAN BILLING TAHUN TERPILIH ================= -->
+            <div id="screenDetail" class="space-y-3 hidden">
+              
+              <!-- Summary Kendaraan & Tahun Terpilih (JSS Card) -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm">
+                <div class="flex justify-between items-center mb-1.5">
+                  <span id="detailNopol" class="font-mono font-bold text-xs px-2.5 py-0.5 bg-slate-900 border border-slate-700 text-white rounded-md tracking-wider">
+                    AB 2481 XZ
+                  </span>
+                  <span id="detailTahunBadge" class="text-[10px] bg-blue-50 text-[#084c94] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                    Tahun 2026
+                  </span>
+                </div>
+                <h4 id="detailModel" class="font-bold text-slate-900 text-xs">Honda Vario 160 ABS</h4>
+                <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-500">
+                  <div>No. Rangka: <span id="detailNoRangka" class="font-mono font-semibold text-slate-700">MH1KF812...</span></div>
+                  <div>No. Mesin: <span id="detailNoMesin" class="font-mono font-semibold text-slate-700">KF81E192...</span></div>
+                </div>
+              </div>
+
+              <!-- Rincian Biaya Resmi (Samsat API Step 4) -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-3.5 space-y-2.5 shadow-sm">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                  <h5 class="font-bold text-slate-800 text-xs">Rincian Tagihan Resmi</h5>
+                  <span class="text-[9px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 font-mono font-semibold rounded border border-emerald-200">
+                    Validasi Samsat
+                  </span>
+                </div>
+                
+                <div class="space-y-1.5 text-[11px]">
+                  <div class="flex justify-between text-slate-600">
+                    <span id="lblPkbPokok">1. PKB Pokok (Pajak Kendaraan)</span>
+                    <span id="txtPkbPokok" class="font-mono font-bold text-slate-900">Rp 315.000</span>
+                  </div>
+                  <div class="flex justify-between text-slate-600">
+                    <span id="lblSwdkllj">2. SWDKLLJ (Jasa Raharja)</span>
+                    <span id="txtSwdkllj" class="font-mono font-bold text-slate-900">Rp 35.000</span>
+                  </div>
+                  <div class="flex justify-between text-slate-400">
+                    <span>3. PNBP Pengesahan STNK</span>
+                    <span class="font-mono font-semibold text-slate-600">Rp 0 (Tahunan)</span>
+                  </div>
+                  <div class="flex justify-between text-slate-500">
+                    <span id="lblDenda">4. Denda Keterlambatan</span>
+                    <span id="txtDenda" class="font-mono font-semibold text-emerald-600">Rp 0 (Nihil)</span>
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-200 flex justify-between items-baseline">
+                  <div>
+                    <span class="text-[10px] text-slate-500 font-semibold block leading-tight">Total Kewajiban Bayar</span>
+                    <span class="text-[9px] text-slate-400">Tanpa Biaya Admin Tambahan</span>
+                  </div>
+                  <span id="txtTotalBayar" class="text-base font-black text-[#084c94] font-mono">Rp 350.000</span>
+                </div>
+              </div>
+
+              <!-- Keterangan Keamanan Arsitektur -->
+              <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[10.5px] text-amber-900 space-y-1 shadow-2xs">
+                <p class="font-bold flex items-center gap-1.5 text-amber-800">
+                  <svg class="w-3.5 h-3.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  Perlindungan Tagihan Terkunci (Samsat Lock)
+                </p>
+                <p class="leading-snug text-slate-700">
+                  Sistem Samsat akan mengunci status tagihan ini secara eksklusif untuk sesi pembayaran Anda guna mencegah double billing.
+                </p>
+              </div>
+
+              <!-- Tombol Eksekusi Buat QRIS (JSS Primary Blue Button) -->
+              <button onclick="requestGenerateQris()" id="btnActionQris" class="w-full py-3 bg-[#084c94] hover:bg-[#073b75] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-[0.98]">
+                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                <span>Bayar dengan QRIS BPD DIY</span>
+              </button>
+            </div>
+
+            <!-- ================= SCREEN 4: QRIS DISPLAY & COUNTDOWN ================= -->
+            <div id="screenQris" class="space-y-3 hidden">
+              
+              <!-- Header QRIS Dinamis -->
+              <div class="text-center">
+                <span class="inline-block px-2.5 py-0.5 rounded-full bg-blue-100 text-[#084c94] border border-blue-300 text-[10px] font-bold mb-1 shadow-2xs">
+                  ✓ Dynamic QRIS Terbit
+                </span>
+                <h4 class="font-bold text-slate-900 text-xs">Pindai Kode QRIS untuk Bayar</h4>
+                <p class="text-[10px] text-slate-500">Gunakan Mobile Banking BPD DIY atau e-Wallet apa saja</p>
+              </div>
+
+              <!-- Card QR Container Putih Bersih (Standar BI/ASPI) -->
+              <div class="bg-white rounded-2xl p-4 text-slate-950 shadow-md border border-slate-200 flex flex-col items-center relative">
+                <!-- Logos Header -->
+                <div class="w-full flex justify-between items-center mb-2 px-1 border-b border-slate-200 pb-2">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-black tracking-tighter text-sm text-red-600">QRIS</span>
+                    <span class="text-[8px] text-slate-500 font-bold">PEMBAYARAN DIGITAL</span>
+                  </div>
+                  <span class="font-black text-[11px] text-[#073b75] tracking-tight">BANK BPD DIY</span>
+                </div>
+
+                <!-- Merchant Name -->
+                <p class="text-[10px] font-black text-slate-900 text-center uppercase tracking-wide">SAMSAT PROVINSI DIY</p>
+                <p class="text-[9px] text-slate-500 font-mono mb-2">NMID: ID1020039281920</p>
+
+                <!-- Dynamic QR Code SVG Canvas Render -->
+                <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-inner my-1 relative">
+                  <svg id="qrisSvg" class="w-44 h-44" viewBox="0 0 100 100" fill="currentColor">
+                    <rect x="0" y="0" width="100" height="100" fill="white"/>
+                    <rect x="5" y="5" width="26" height="26" fill="black"/>
+                    <rect x="8" y="8" width="20" height="20" fill="white"/>
+                    <rect x="11" y="11" width="14" height="14" fill="black"/>
+
+                    <rect x="69" y="5" width="26" height="26" fill="black"/>
+                    <rect x="72" y="8" width="20" height="20" fill="white"/>
+                    <rect x="75" y="11" width="14" height="14" fill="black"/>
+
+                    <rect x="5" y="69" width="26" height="26" fill="black"/>
+                    <rect x="8" y="72" width="20" height="20" fill="white"/>
+                    <rect x="11" y="75" width="14" height="14" fill="black"/>
+
+                    <!-- QR Data Pattern Elements -->
+                    <rect x="36" y="8" width="6" height="6" fill="black"/>
+                    <rect x="46" y="8" width="6" height="6" fill="black"/>
+                    <rect x="56" y="8" width="6" height="6" fill="black"/>
+                    <rect x="36" y="18" width="12" height="6" fill="black"/>
+                    <rect x="52" y="18" width="8" height="6" fill="black"/>
+                    <rect x="36" y="28" width="6" height="6" fill="black"/>
+                    <rect x="48" y="28" width="14" height="6" fill="black"/>
+
+                    <rect x="8" y="38" width="18" height="6" fill="black"/>
+                    <rect x="30" y="38" width="8" height="6" fill="black"/>
+                    <rect x="42" y="38" width="16" height="6" fill="black"/>
+                    <rect x="64" y="38" width="10" height="6" fill="black"/>
+                    <rect x="78" y="38" width="14" height="6" fill="black"/>
+
+                    <rect x="8" y="48" width="10" height="6" fill="black"/>
+                    <rect x="22" y="48" width="14" height="6" fill="black"/>
+                    <rect x="40" y="48" width="20" height="6" fill="black"/>
+                    <rect x="66" y="48" width="12" height="6" fill="black"/>
+                    <rect x="82" y="48" width="10" height="6" fill="black"/>
+
+                    <rect x="8" y="58" width="14" height="6" fill="black"/>
+                    <rect x="28" y="58" width="10" height="6" fill="black"/>
+                    <rect x="44" y="58" width="8" height="6" fill="black"/>
+                    <rect x="56" y="58" width="14" height="6" fill="black"/>
+                    <rect x="74" y="58" width="18" height="6" fill="black"/>
+
+                    <rect x="36" y="68" width="10" height="6" fill="black"/>
+                    <rect x="50" y="68" width="14" height="6" fill="black"/>
+                    <rect x="68" y="68" width="8" height="6" fill="black"/>
+                    <rect x="80" y="68" width="12" height="6" fill="black"/>
+
+                    <rect x="36" y="78" width="14" height="6" fill="black"/>
+                    <rect x="54" y="78" width="8" height="6" fill="black"/>
+                    <rect x="66" y="78" width="16" height="6" fill="black"/>
+                    <rect x="86" y="78" width="6" height="6" fill="black"/>
+
+                    <rect x="36" y="88" width="8" height="6" fill="black"/>
+                    <rect x="48" y="88" width="16" height="6" fill="black"/>
+                    <rect x="68" y="88" width="10" height="6" fill="black"/>
+                    <rect x="82" y="88" width="10" height="6" fill="black"/>
+                  </svg>
+                  
+                  <!-- Center Logo Badge -->
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded bg-white shadow-md border border-slate-300 flex items-center justify-center font-black text-[9px] text-[#073b75]">
+                      BPD
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total Amount in QRIS -->
+                <div class="w-full text-center mt-2 pt-2 border-t border-slate-200">
+                  <span class="text-[10px] text-slate-500 uppercase font-semibold">Nominal Tagihan Pas</span>
+                  <p id="qrisNominal" class="text-base font-black text-[#084c94] font-mono">Rp 350.000</p>
+                </div>
+              </div>
+
+              <!-- Countdown Timer & Billing Code -->
+              <div class="bg-white border border-slate-200 rounded-xl p-2.5 flex justify-between items-center text-[11px] shadow-2xs">
+                <div>
+                  <span class="text-[9px] text-slate-500 block leading-tight font-medium">Kode Billing Samsat</span>
+                  <span id="txtBillingId" class="font-mono text-[#084c94] font-bold">BILL-DIY-9812</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[9px] text-slate-500 block leading-tight font-medium">Batas Waktu Pembayaran</span>
+                  <span id="countdownTimer" class="font-mono text-amber-600 font-black text-xs">14:59</span>
+                </div>
+              </div>
+
+              <!-- Meeting Simulator Buttons -->
+              <div class="space-y-2 pt-1">
+                <button onclick="simulatePaymentSuccess()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-[0.98]">
+                  <span class="w-2 h-2 rounded-full bg-emerald-200 animate-ping"></span>
+                  <span>Simulasi: Nasabah Bayar QRIS (Bank)</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="checkStatusFallback()" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold border border-slate-300 transition">
+                    🔄 Cek Status Manual
+                  </button>
+                  <button onclick="cancelCurrentBilling()" class="py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[10px] font-bold border border-rose-200 transition">
+                    ❌ Batalkan Billing
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= SCREEN 5: PEMBAYARAN SUKSES & SUMMARY ================= -->
+            <div id="screenSuccess" class="space-y-3.5 hidden text-center">
+              
+              <!-- Success Animation Card -->
+              <div class="pt-3 pb-1">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto mb-2.5 shadow-sm">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <h3 class="font-black text-slate-900 text-sm">Pembayaran Pajak Berhasil!</h3>
+                <p class="text-[10.5px] text-slate-500 mt-0.5">Disahkan oleh Samsat DIY & Ter-settle Bank BPD DIY</p>
+              </div>
+
+              <!-- Receipt Summary (JSS Official Look) -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-3.5 text-left space-y-2 text-[11px] shadow-sm">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                  <span class="text-slate-500 font-medium">Nomor NTPN BPD</span>
+                  <span id="resNtpn" class="font-mono font-bold text-[#084c94]">NTPN-20261106-9812</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Kendaraan</span>
+                  <span id="resNopol" class="font-mono font-bold text-slate-800">AB 2481 XZ</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Periode Pajak</span>
+                  <span id="resPeriodeTahun" class="font-bold text-slate-800">Tahun 2026</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Masa Pajak Baru</span>
+                  <span id="resMasaPajak" class="font-bold text-emerald-700">28 Nov 2027</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Total Dibayar</span>
+                  <span id="resTotal" class="font-mono font-black text-[#084c94]">Rp 350.000</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Kanal Transaksi</span>
+                  <span class="font-medium text-slate-700">QRIS Dinamis BPD DIY</span>
+                </div>
+              </div>
+
+              <!-- ACTION: VIEW OFFICIAL DOCUMENT INSIDE MOBILE! -->
+              <div class="space-y-2 pt-1">
+                <button onclick="openMobileDocumentScreen()" class="w-full py-3 bg-[#084c94] hover:bg-[#073b75] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-[0.98]">
+                  <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Lihat Dokumen e-SKKP Digital</span>
+                </button>
+                <button onclick="goBackToStart()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition border border-slate-300">
+                  Kembali ke Beranda JSS
+                </button>
+              </div>
+            </div>
+
+            <!-- ================= SCREEN 6: IN-APP MOBILE e-SKKP DOCUMENT VIEWER ================= -->
+            <div id="screenDocument" class="space-y-3 hidden">
+              
+              <!-- Document Container Inside Mobile Phone -->
+              <div class="bg-white rounded-2xl border border-slate-300 shadow-md p-3.5 space-y-3 eskkp-watermark text-slate-900">
+                
+                <!-- Official Kop Surat Pemda DIY -->
+                <div class="border-b-2 border-slate-900 pb-2.5 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-md bg-[#084c94] text-white font-black flex items-center justify-center text-[10px] shadow-xs">
+                      DIY
+                    </div>
+                    <div>
+                      <h4 class="font-black text-[9px] uppercase tracking-wider text-slate-900 leading-tight">PEMERINTAH DAERAH D.I. YOGYAKARTA</h4>
+                      <p class="text-[7.5px] text-slate-600 font-bold leading-none">BADAN PENGELOLA KEUANGAN DAN ASET DAERAH</p>
+                      <p class="text-[7px] text-[#084c94] font-semibold leading-none mt-0.5">SAMSAT PROVINSI D.I. YOGYAKARTA</p>
+                    </div>
+                  </div>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[8px] font-mono font-bold border border-emerald-300">
+                    SAH ELEKTRONIK
+                  </span>
+                </div>
+
+                <!-- Judul Dokumen e-SKKP -->
+                <div class="text-center pt-0.5">
+                  <h5 class="font-black text-[10px] uppercase underline text-slate-900 tracking-tight">
+                    SURAT KETETAPAN KEWAJIBAN PEMBAYARAN ELEKTRONIK (e-SKKP)
+                  </h5>
+                  <p class="text-[8px] text-slate-500 font-mono mt-0.5">
+                    Diterbitkan Sah secara Digital melalui Kanal Jogja Smart Service (JSS)
+                  </p>
+                </div>
+
+                <!-- Info Objek Pajak Kendaraan -->
+                <div class="bg-slate-50/90 p-2.5 rounded-xl border border-slate-200 text-[9.5px] space-y-1">
+                  <div class="grid grid-cols-3">
+                    <span class="text-slate-500 font-medium">No. Registrasi (Nopol)</span>
+                    <span id="docNopol" class="col-span-2 font-mono font-black text-slate-900">AB 2481 XZ</span>
+                  </div>
+                  <div class="grid grid-cols-3">
+                    <span class="text-slate-500 font-medium">Nama Pemilik</span>
+                    <span class="col-span-2 font-bold text-slate-800">RADEN MAS DANANG P.</span>
+                  </div>
+                  <div class="grid grid-cols-3">
+                    <span class="text-slate-500 font-medium">NIK Warga (Masked)</span>
+                    <span class="col-span-2 font-mono font-semibold text-slate-700">347101******0002</span>
+                  </div>
+                  <div class="grid grid-cols-3">
+                    <span class="text-slate-500 font-medium">Merk / Tipe</span>
+                    <span id="docMerk" class="col-span-2 font-medium text-slate-800">Honda Vario 160 ABS (2022)</span>
+                  </div>
+                  <div class="grid grid-cols-3">
+                    <span class="text-slate-500 font-medium">Tahun / Masa Baru</span>
+                    <span id="docMasaPajak" class="col-span-2 font-black text-emerald-700">28 NOVEMBER 2027</span>
+                  </div>
+                </div>
+
+                <!-- Rincian Biaya Dokumen -->
+                <table class="w-full text-[9px] border border-slate-300">
+                  <thead class="bg-slate-100 font-bold text-slate-800">
+                    <tr>
+                      <th class="p-1 border border-slate-300 text-left">Komponen Penerimaan</th>
+                      <th class="p-1 border border-slate-300 text-right">Pokok</th>
+                      <th class="p-1 border border-slate-300 text-right">Denda</th>
+                      <th class="p-1 border border-slate-300 text-right">Jumlah</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-slate-700">
+                    <tr>
+                      <td class="p-1 border border-slate-300">1. PKB (Pajak Kendaraan)</td>
+                      <td id="docPkb" class="p-1 border border-slate-300 text-right font-mono">Rp 315.000</td>
+                      <td id="docPkbDenda" class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
+                      <td id="docPkbTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 315.000</td>
+                    </tr>
+                    <tr>
+                      <td class="p-1 border border-slate-300">2. SWDKLLJ (Jasa Raharja)</td>
+                      <td id="docSwdkllj" class="p-1 border border-slate-300 text-right font-mono">Rp 35.000</td>
+                      <td id="docSwdklljDenda" class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
+                      <td id="docSwdklljTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 35.000</td>
+                    </tr>
+                    <tr>
+                      <td class="p-1 border border-slate-300">3. PNBP Pengesahan STNK</td>
+                      <td class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
+                      <td class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
+                      <td id="docPnbpTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 0</td>
+                    </tr>
+                    <tr class="bg-emerald-50 font-black text-emerald-950">
+                      <td colspan="3" class="p-1.5 border border-slate-300 text-right">JUMLAH TOTAL LUNAS</td>
+                      <td id="docTotal" class="p-1.5 border border-slate-300 text-right font-mono text-[10px]">Rp 350.000</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Bagian Validasi Digital & QR Verification -->
+                <div class="border border-slate-300 rounded-xl p-2 bg-slate-50/70 flex items-center justify-between text-[8.5px]">
+                  <div>
+                    <p class="font-bold text-slate-800">Nomor Transaksi Pembayaran Pajak (NTPN):</p>
+                    <p id="docNtpn" class="font-mono text-[#084c94] font-black text-[10px]">NTPN-20261106-9812BPD</p>
+                    <p class="text-slate-500 text-[8px] mt-0.5">Tervalidasi Bank Persepsi: <strong>BANK BPD DIY</strong></p>
+                    <p class="text-emerald-700 font-semibold text-[8px]">Status: TERTIB PAJAK KENDARAAN</p>
+                  </div>
+                  <!-- Mini QR Stamp -->
+                  <div class="w-12 h-12 bg-white border border-slate-300 rounded-lg p-0.5 flex flex-col items-center justify-center text-center shadow-2xs">
+                    <svg class="w-8 h-8 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 2h2v2h-2v-2zm-4-4h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2z"/>
+                    </svg>
+                    <span class="text-[5.5px] font-mono text-slate-500 font-bold leading-none">VALID SAMSAT</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- In-App Action Buttons inside Mobile Phone -->
+              <div class="space-y-2 pt-1 pb-2">
+                <button onclick="downloadEskkpPdf()" id="btnDownloadDoc" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition active:scale-[0.98]">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Unduh Dokumen PDF Resmi</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="shareEskkpDoc()" class="py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold border border-slate-300 transition flex items-center justify-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                    <span>Bagikan e-SKKP</span>
+                  </button>
+                  <button onclick="goBackToStart()" class="py-2 bg-blue-50 hover:bg-blue-100 text-[#084c94] rounded-lg text-[10px] font-bold border border-blue-200 transition">
+                    Selesai
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- BOTTOM NAVIGATION BAR (JSS STYLE: BERANDA, LAYANAN, ADUAN, AKUN) -->
+          <div class="p-2 bg-white border-t border-slate-200 grid grid-cols-4 text-center text-[9.5px] font-semibold text-slate-500 z-30 shadow-lg">
+            <div onclick="goBackToStart()" class="flex flex-col items-center cursor-pointer text-[#084c94]">
+              <svg class="w-4 h-4 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+              <span>Beranda</span>
+            </div>
+            <div class="flex flex-col items-center cursor-pointer hover:text-[#084c94]">
+              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              <span>Layanan</span>
+            </div>
+            <div class="flex flex-col items-center cursor-pointer hover:text-[#084c94]">
+              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span>Notifikasi</span>
+            </div>
+            <div class="flex flex-col items-center cursor-pointer hover:text-[#084c94]">
+              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <span>Akun JSS</span>
+            </div>
+          </div>
+
+          <!-- HOME INDICATOR BAR (IOS STYLE) -->
+          <div class="pb-1.5 pt-0.5 flex justify-center bg-white">
+            <div class="w-28 h-1 bg-slate-300 rounded-full"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: LIVE ARCHITECTURE TRACE & API INSPECTOR (CLEAN ENTERPRISE LIGHT CARDS) -->
+    <section id="panelArchitecture" class="lg:col-span-7 space-y-4">
+      
+      <!-- CARD 1: STATE MACHINE MONITOR (CLEAN WHITE CARD) -->
+      <div id="cardStateMachine" class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+        <div class="flex justify-between items-center mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-blue-600 animate-ping"></span>
+            <h3 class="font-bold text-slate-900 text-sm">State Machine & Lifecycle Status</h3>
+          </div>
+          <span id="currentPillState" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-50 text-[#084c94] border border-blue-200 shadow-2xs">
+            STATE: IDLE / READY
+          </span>
+        </div>
+
+        <!-- Progress Pills -->
+        <div class="grid grid-cols-5 gap-1.5 text-center text-[10px] font-mono">
+          <div id="stepPill0" class="p-2 rounded-lg bg-blue-50 text-[#084c94] border border-blue-300 font-bold">
+            1. INQUIRY<br/><span class="text-[9px] font-normal opacity-90">NIK & Nopol</span>
+          </div>
+          <div id="stepPill1" class="p-2 rounded-lg bg-slate-100 text-slate-500 border border-slate-200">
+            2. PILIH TAHUN<br/><span class="text-[9px] font-normal opacity-80">Belum / Lunas</span>
+          </div>
+          <div id="stepPill2" class="p-2 rounded-lg bg-slate-100 text-slate-500 border border-slate-200">
+            3. QRIS LOCK<br/><span class="text-[9px] font-normal opacity-80">Samsat & BPD</span>
+          </div>
+          <div id="stepPill3" class="p-2 rounded-lg bg-slate-100 text-slate-500 border border-slate-200">
+            4. PAYMENT<br/><span class="text-[9px] font-normal opacity-80">Chain Webhook</span>
+          </div>
+          <div id="stepPill4" class="p-2 rounded-lg bg-slate-100 text-slate-500 border border-slate-200">
+            5. SETTLED<br/><span class="text-[9px] font-normal opacity-80">e-SKKP Sah</span>
+          </div>
+        </div>
+
+        <!-- Security Badge Row -->
+        <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-[10.5px]">
+          <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#084c94] border border-blue-200 font-medium flex items-center gap-1 shadow-2xs">
+            🔒 mTLS Mutual TLS
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium flex items-center gap-1 shadow-2xs">
+            🛡️ HMAC SHA-256 Webhook
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 font-medium flex items-center gap-1 shadow-2xs">
+            🔑 Idempotency Key Guard
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-medium flex items-center gap-1 shadow-2xs">
+            ⏱️ Anti-Replay (< 5m)
+          </span>
+        </div>
+      </div>
+
+      <!-- CARD 2: LIVE API TRACER LOG (HIGH CONTRAST CLEAN DEVELOPER TERMINAL) -->
+      <div id="cardApiTracer" class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+        <div class="flex justify-between items-center mb-2.5">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <h3 class="font-bold text-slate-900 text-sm">Live Payload Tracing (Presentasi Rapat Teknis)</h3>
+          </div>
+          <span class="text-[10px] text-[#084c94] font-mono font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">JSS Service Mesh</span>
+        </div>
+
+        <!-- Terminal Output (Clean Dark Navy Console with high legibility) -->
+        <div id="traceTerminal" class="h-80 overflow-y-auto bg-slate-900 rounded-xl p-3.5 border border-slate-800 font-mono text-[11px] leading-relaxed space-y-2 text-slate-200 shadow-inner">
+          <div class="text-slate-500">// Sistem siap untuk simulasi rapat integrasi bersama Samsat & BPD DIY...</div>
+          <div class="text-cyan-300 font-semibold">[READY] Akun Warga Terverifikasi di JSS (NIK: 347101******0002).</div>
+          <div class="text-slate-300">[GET] Kominfo (JSS Backend) ➔ Samsat DIY: GET /api/v2/kendaraan?nik=347101******0002 [mTLS Handshake OK]</div>
+          <div class="text-emerald-400 pl-3">↳ 2 Kendaraan berhasil dimuat dari database Samsat DIY.</div>
+        </div>
+      </div>
+
+      <!-- CARD 3: AUDIT & BENEFIT UNTUK KOMINFO / PEMKOT JOGJA -->
+      <div id="cardAuditBenefit" class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+        <h4 class="font-bold text-slate-900 text-xs mb-2.5 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#084c94]"></span>
+          Keunggulan Alur untuk Presentasi Rapat Kominfo, Samsat & BPD DIY
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px]">
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span class="font-bold text-amber-800 block mb-1">1. List Atas: Belum Terbayar</span>
+            <p class="text-slate-600 text-[10px]">Hanya tagihan tertunggak yang memiliki tombol aksi <strong>"Bayar via QRIS"</strong>. Tidak ada risiko salah bayar.</p>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span class="font-bold text-emerald-800 block mb-1">2. List Bawah: Riwayat Lunas</span>
+            <p class="text-slate-600 text-[10px]">Tahun-tahun sebelumnya yang sudah lunas menjadi arsip digital dan dokumen e-SKKP lampau bisa dicek kapan saja.</p>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span class="font-bold text-[#084c94] block mb-1">3. Transparansi Biller Samsat</span>
+            <p class="text-slate-600 text-[10px]">Sesuai kontrak API Blueprint `GET /api/v2/pajak/tahun?nopol=...`, sistem biller mengembalikan riwayat komprehensif.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT STATE CONTROLLER & SIMULATOR LOGIC -->
+  <script>
+    // State Tema (Default: Light Mode)
+    let isDarkMode = false;
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      const body = document.getElementById('bodyRoot');
+      const header = document.getElementById('mainHeader');
+      const phoneBezel = document.getElementById('phoneBezel');
+      const cardStateMachine = document.getElementById('cardStateMachine');
+      const cardApiTracer = document.getElementById('cardApiTracer');
+      const cardAuditBenefit = document.getElementById('cardAuditBenefit');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeLabel = document.getElementById('themeLabel');
+
+      if (isDarkMode) {
+        // Dark Mode
+        body.className = "bg-slate-950 text-slate-100 min-h-screen font-sans antialiased p-3 md:p-6 flex flex-col justify-between transition-colors duration-200";
+        header.className = "max-w-7xl mx-auto w-full mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur";
+        phoneBezel.className = "w-full max-w-[390px] h-[780px] bg-slate-900 rounded-[48px] p-3 shadow-2xl border-4 border-slate-800 relative flex flex-col overflow-hidden ring-1 ring-slate-700/60";
+        cardStateMachine.className = "bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl";
+        cardApiTracer.className = "bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl";
+        cardAuditBenefit.className = "bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl";
+        themeIcon.innerText = "☀️";
+        themeLabel.innerText = "Mode Terang";
+      } else {
+        // Clean White Mode (Default)
+        body.className = "bg-slate-100 text-slate-800 min-h-screen font-sans antialiased p-3 md:p-6 flex flex-col justify-between transition-colors duration-200";
+        header.className = "max-w-7xl mx-auto w-full mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm backdrop-blur";
+        phoneBezel.className = "w-full max-w-[390px] h-[780px] bg-slate-800 rounded-[48px] p-3 shadow-2xl border-4 border-slate-700 relative flex flex-col overflow-hidden ring-4 ring-slate-200";
+        cardStateMachine.className = "bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm";
+        cardApiTracer.className = "bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm";
+        cardAuditBenefit.className = "bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm";
+        themeIcon.innerText = "🌙";
+        themeLabel.innerText = "Mode Gelap";
+      }
+    }
+
+    // Database Simulasi Kendaraan & Daftar Tahun Pajak (Samsat API Step 2 & 3)
+    const vehicleDatabase = {
+      'AB 2481 XZ': {
+        nopol: 'AB 2481 XZ',
+        model: 'Honda Vario 160 ABS (2022)',
+        noRangka: 'MH1KF8123NK098124',
+        noMesin: 'KF81E1928371',
+        totalAkumulasi: 750000,
+        totalPokokPkb: 630000,
+        totalPokokSwdkllj: 70000,
+        totalDenda: 50000,
+        dendaPkb: 40000,
+        dendaSwdkllj: 10000,
+        masaPajakBaru: '28 November 2027',
+        unpaidYears: [
+          {
+            cardNum: 1,
+            tahun: 2025,
+            status: 'TERTUNGGAK',
+            badgeText: 'Tertunggak 12 Bulan',
+            badgeClass: 'bg-rose-100 text-rose-700 border border-rose-200',
+            label: '[Card 1] Tahun Pajak 2025 (Tertunggak 12 Bulan)',
+            jatuhTempo: '28 November 2025',
+            pokokPkbSwdkllj: 350000,
+            pkb: 315000,
+            swdkllj: 35000,
+            denda: 50000,
+            subtotal: 400000
+          },
+          {
+            cardNum: 2,
+            tahun: 2026,
+            status: 'BERJALAN',
+            badgeText: 'Periode Berjalan',
+            badgeClass: 'jss-badge-gold',
+            label: '[Card 2] Tahun Pajak 2026 (Periode Berjalan)',
+            jatuhTempo: '28 November 2026',
+            pokokPkbSwdkllj: 350000,
+            pkb: 315000,
+            swdkllj: 35000,
+            denda: 0,
+            subtotal: 350000
+          }
+        ],
+        paidYears: [
+          {
+            tahun: 2024,
+            status: 'LUNAS',
+            label: 'Tahun Pajak 2024',
+            tglBayar: '20 November 2024',
+            masaPajakLalu: '28 November 2025',
+            nominal: 335000,
+            pkb: 300000,
+            swdkllj: 35000,
+            ntpn: 'NTPN-20241120-BPD6190'
+          },
+          {
+            tahun: 2023,
+            status: 'LUNAS',
+            label: 'Tahun Pajak 2023',
+            tglBayar: '18 November 2023',
+            masaPajakLalu: '28 November 2024',
+            nominal: 330000,
+            pkb: 295000,
+            swdkllj: 35000,
+            ntpn: 'NTPN-20231118-BPD5102'
+          }
+        ]
+      },
+      'AB 1892 YQ': {
+        nopol: 'AB 1892 YQ',
+        model: 'Toyota Avanza 1.5 G MT (2021)',
+        noRangka: 'MHFM2BA31NK019821',
+        noMesin: '2NRE8192831',
+        totalAkumulasi: 2450000,
+        totalPokokPkb: 2307000,
+        totalPokokSwdkllj: 143000,
+        totalDenda: 0,
+        dendaPkb: 0,
+        dendaSwdkllj: 0,
+        masaPajakBaru: '15 April 2028',
+        unpaidYears: [
+          {
+            cardNum: 1,
+            tahun: 2027,
+            status: 'BERJALAN',
+            badgeText: 'Periode Berjalan',
+            badgeClass: 'jss-badge-gold',
+            label: '[Card 1] Tahun Pajak 2027 (Periode Berjalan)',
+            jatuhTempo: '15 April 2027',
+            pokokPkbSwdkllj: 2450000,
+            pkb: 2307000,
+            swdkllj: 143000,
+            denda: 0,
+            subtotal: 2450000
+          }
+        ],
+        paidYears: [
+          {
+            tahun: 2026,
+            status: 'LUNAS',
+            label: 'Tahun Pajak 2026',
+            tglBayar: '10 April 2026',
+            masaPajakLalu: '15 April 2027',
+            nominal: 2450000,
+            pkb: 2307000,
+            swdkllj: 143000,
+            ntpn: 'NTPN-20260410-BPD8821'
+          },
+          {
+            tahun: 2025,
+            status: 'LUNAS',
+            label: 'Tahun Pajak 2025',
+            tglBayar: '12 April 2025',
+            masaPajakLalu: '15 April 2026',
+            nominal: 2400000,
+            pkb: 2257000,
+            swdkllj: 143000,
+            ntpn: 'NTPN-20250412-BPD5419'
+          }
+        ]
+      }
+    };
+
+    // State Aplikasi
+    let currentStep = 1;
+    let currentSelectedNopol = 'AB 2481 XZ';
+    let currentSelectedYearData = null;
+    let billingId = 'BILL-DIY-20261106-9812';
+    let currentNtpn = 'NTPN-20261106-BPD9812';
+    let countdownInterval = null;
+    let secondsLeft = 15 * 60; // 15 menit
+    let isLogPanelVisible = true;
+
+    // Format Rupiah
+    function formatRupiah(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+    }
+
+    // Append to Terminal Tracing
+    function logTrace(type, actor, text, payload = null) {
+      const term = document.getElementById('traceTerminal');
+      const time = new Date().toLocaleTimeString('id-ID');
+      const div = document.createElement('div');
+      
+      let colorClass = 'text-slate-300';
+      if (type === 'SUCCESS') colorClass = 'text-emerald-400 font-semibold';
+      if (type === 'INQUIRY') colorClass = 'text-cyan-300';
+      if (type === 'LOCK') colorClass = 'text-amber-300';
+      if (type === 'BANK') colorClass = 'text-purple-300';
+      if (type === 'WARN') colorClass = 'text-rose-400';
+
+      let html = `<span class="text-slate-400">[${time}]</span> <span class="${colorClass}">[${actor}] ${text}</span>`;
+      if (payload) {
+        html += `<pre class="mt-1 p-2 bg-slate-950 border border-slate-800 rounded text-[10px] text-slate-300 overflow-x-auto">${JSON.stringify(payload, null, 2)}</pre>`;
+      }
+      div.innerHTML = html;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    // Set Active State Pill
+    function updateStateUI(stateName, stepIndex) {
+      document.getElementById('currentPillState').innerText = `STATE: ${stateName}`;
+      
+      for (let i = 0; i <= 4; i++) {
+        const pill = document.getElementById(`stepPill${i}`);
+        if (i === stepIndex) {
+          pill.className = 'p-2 rounded-lg bg-[#084c94] text-white font-bold ring-2 ring-blue-500 shadow-md';
+        } else if (i < stepIndex) {
+          pill.className = 'p-2 rounded-lg bg-blue-50 text-[#084c94] border border-blue-300 font-bold';
+        } else {
+          pill.className = 'p-2 rounded-lg bg-slate-100 text-slate-500 border border-slate-200';
+        }
+      }
+    }
+
+    // Screen Navigations inside Phone
+    function showScreen(screenId, title, subTitle, showBack = true) {
+      ['screenVehicles', 'screenYears', 'screenDetail', 'screenQris', 'screenSuccess', 'screenDocument'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(screenId).classList.remove('hidden');
+      document.getElementById('screenTitle').innerText = title;
+      document.getElementById('screenSubTitle').innerText = subTitle;
+      
+      const btnBack = document.getElementById('btnBackScreen');
+      if (showBack) {
+        btnBack.classList.remove('hidden');
+      } else {
+        btnBack.classList.add('hidden');
+      }
+
+      const topBadge = document.getElementById('topBarRightBadge');
+      if (screenId === 'screenDocument') {
+        topBadge.innerHTML = `<span class="px-2 py-0.5 rounded-full text-[9px] bg-emerald-400 text-slate-950 font-bold border border-emerald-300">e-SKKP SAH</span>`;
+      } else {
+        topBadge.innerHTML = `<span class="px-2 py-0.5 rounded-full text-[9px] bg-amber-400 text-blue-950 font-bold border border-amber-300 shadow-sm">QRIS BPD DIY</span>`;
+      }
+    }
+
+    // STEP 1 -> STEP 2: KLIK PLAT NOMOR -> BUKA DAFTAR TAHUN (STEP 3 BLUEPRINT)
+    function selectVehicleToYears(nopol) {
+      currentSelectedNopol = nopol;
+      const veh = vehicleDatabase[nopol];
+
+      // Update badge header
+      document.getElementById('yearsNopolBadge').innerText = veh.nopol;
+      document.getElementById('yearsModelBadge').innerText = veh.model;
+
+      // Render Unpaid Years (LIST ATAS - MENAMPILKAN CARD PER TAHUN SESUAI SPESIFIKASI RAPAT)
+      const unpaidContainer = document.getElementById('unpaidYearsContainer');
+      unpaidContainer.innerHTML = '';
+      
+      veh.unpaidYears.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-white border-2 border-amber-300/80 rounded-xl p-3 shadow-xs space-y-1.5 transition';
+        div.innerHTML = `
+          <div class="flex justify-between items-start mb-1">
+            <div>
+              <span class="font-bold text-xs text-slate-900">${item.label}</span>
+              <p class="text-[9.5px] text-slate-500">Jatuh Tempo: <strong class="${item.denda > 0 ? 'text-rose-600' : 'text-slate-700'}">${item.jatuhTempo}</strong></p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${item.badgeClass}">
+              ${item.badgeText}
+            </span>
+          </div>
+          
+          <div class="space-y-1 text-[10.5px] pt-1.5 border-t border-slate-100 text-slate-600">
+            <div class="flex justify-between">
+              <span>• Pokok PKB + SWDKLLJ :</span>
+              <span class="font-mono font-semibold text-slate-800">${formatRupiah(item.pokokPkbSwdkllj)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>• Denda Keterlambatan :</span>
+              <span class="font-mono font-semibold ${item.denda > 0 ? 'text-rose-600' : 'text-emerald-600'}">${item.denda > 0 ? formatRupiah(item.denda) : 'Rp 0 (Nihil)'}</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-1.5 border-t border-slate-100">
+            <span class="text-[10px] font-bold text-slate-600">Subtotal ${item.tahun} :</span>
+            <span class="text-xs font-black text-[#084c94] font-mono">${formatRupiah(item.subtotal)}</span>
+          </div>
+        `;
+        unpaidContainer.appendChild(div);
+      });
+
+      // Box TOTAL AKUMULASI & TOMBOL BAYAR SEKALIGUS (ATURAN SAMSAT FIFO)
+      const totalBox = document.createElement('div');
+      totalBox.className = 'bg-gradient-to-br from-amber-50 to-blue-50/70 border-2 border-amber-400 rounded-xl p-3 shadow-sm space-y-2 mt-2';
+      
+      const countLabel = veh.unpaidYears.length > 1 ? `${veh.unpaidYears.length} TAHUN` : '1 TAHUN';
+      const btnLabel = veh.unpaidYears.length > 1 ? `Bayar Akumulasi ${veh.unpaidYears.length} Tahun via QRIS BPD DIY` : `Bayar via QRIS BPD DIY`;
+
+      totalBox.innerHTML = `
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-black text-amber-950 uppercase tracking-tight block">TOTAL AKUMULASI ${countLabel}</span>
+            <span class="text-[8.5px] text-slate-500 font-medium">Aturan Samsat: Sekuensial (FIFO) Dilunasi Sekaligus</span>
+          </div>
+          <span class="text-sm font-black text-[#084c94] font-mono">${formatRupiah(veh.totalAkumulasi)}</span>
+        </div>
+        <button onclick="selectAccumulatedUnpaidToDetail()" class="w-full py-2.5 bg-[#084c94] hover:bg-[#073b75] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition active:scale-[0.98]">
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span>${btnLabel}</span>
+        </button>
+      `;
+      unpaidContainer.appendChild(totalBox);
+
+      // Render Paid Years (LIST BAWAH - RIWAYAT LUNAS - HANYA LIHAT BUKTI)
+      const paidContainer = document.getElementById('paidYearsContainer');
+      paidContainer.innerHTML = '';
+
+      veh.paidYears.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-white border border-slate-200 rounded-xl p-2.5 shadow-2xs opacity-90 hover:opacity-100 transition';
+        div.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-xs text-slate-700">${item.label}</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ✓ LUNAS
+            </span>
+          </div>
+          <div class="flex justify-between items-center text-[10px] text-slate-500 pt-1">
+            <div>
+              <span>Tgl Lunas: ${item.tglBayar}</span>
+              <span class="font-mono block text-slate-600 font-semibold">${formatRupiah(item.nominal)} (${item.ntpn})</span>
+            </div>
+            <button onclick="viewPastEskkp('${nopol}', ${item.tahun}, '${item.ntpn}', ${item.nominal}, ${item.pkb}, ${item.swdkllj}, '${item.masaPajakLalu}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[9.5px] font-bold border border-slate-300 transition">
+              Lihat Bukti e-SKKP
+            </button>
+          </div>
+        `;
+        paidContainer.appendChild(div);
+      });
+
+      showScreen('screenYears', 'Pilih Periode Pajak', `${nopol} - Samsat DIY`, true);
+      currentStep = 2;
+      updateStateUI('TAHUN_LOADED', 1);
+
+      logTrace('INQUIRY', 'Kominfo (JSS) ➔ Samsat', `GET /api/v2/pajak/tahun?nopol=${nopol}`, {
+        nopol: nopol,
+        unpaid_years: veh.unpaidYears.map(u => ({ tahun: u.tahun, subtotal: u.subtotal, status: u.status })),
+        total_akumulasi: veh.totalAkumulasi,
+        paid_history: veh.paidYears.map(p => ({ tahun: p.tahun, ntpn: p.ntpn, status: 'LUNAS' }))
+      });
+    }
+
+    // STEP 2 -> STEP 3: BUKA RINCIAN TAGIHAN RESMI AKUMULASI SAMSAT
+    function selectAccumulatedUnpaidToDetail() {
+      const veh = vehicleDatabase[currentSelectedNopol];
+      currentSelectedYearData = {
+        isAccumulated: veh.unpaidYears.length > 1,
+        yearsCount: veh.unpaidYears.length,
+        yearsText: veh.unpaidYears.length > 1 ? `${veh.unpaidYears[0].tahun} - ${veh.unpaidYears[veh.unpaidYears.length - 1].tahun}` : `${veh.unpaidYears[0].tahun}`,
+        nominal: veh.totalAkumulasi,
+        pkb: veh.totalPokokPkb,
+        swdkllj: veh.totalPokokSwdkllj,
+        denda: veh.totalDenda,
+        dendaPkb: veh.dendaPkb,
+        dendaSwdkllj: veh.dendaSwdkllj,
+        masaPajakBaru: veh.masaPajakBaru
+      };
+
+      document.getElementById('detailNopol').innerText = veh.nopol;
+      document.getElementById('detailTahunBadge').innerText = currentSelectedYearData.isAccumulated 
+        ? `Akumulasi 2 Tahun (${currentSelectedYearData.yearsText})` 
+        : `Tahun ${currentSelectedYearData.yearsText}`;
+      document.getElementById('detailModel').innerText = veh.model;
+      document.getElementById('detailNoRangka').innerText = veh.noRangka.substring(0, 10) + '...';
+      document.getElementById('detailNoMesin').innerText = veh.noMesin.substring(0, 8) + '...';
+
+      // Rincian Akumulasi
+      const lblPkb = document.getElementById('lblPkbPokok');
+      const lblSwd = document.getElementById('lblSwdkllj');
+      const lblDenda = document.getElementById('lblDenda');
+      const txtDenda = document.getElementById('txtDenda');
+
+      if (lblPkb) lblPkb.innerText = currentSelectedYearData.isAccumulated ? `1. PKB Pokok (${currentSelectedYearData.yearsCount} Periode)` : `1. PKB Pokok (Pajak Kendaraan)`;
+      if (lblSwd) lblSwd.innerText = currentSelectedYearData.isAccumulated ? `2. SWDKLLJ (${currentSelectedYearData.yearsCount} Periode)` : `2. SWDKLLJ (Jasa Raharja)`;
+      if (lblDenda) lblDenda.innerText = currentSelectedYearData.isAccumulated ? `4. Denda Keterlambatan (Thn 2025)` : `4. Denda Keterlambatan`;
+
+      document.getElementById('txtPkbPokok').innerText = formatRupiah(currentSelectedYearData.pkb);
+      document.getElementById('txtSwdkllj').innerText = formatRupiah(currentSelectedYearData.swdkllj);
+      if (txtDenda) {
+        txtDenda.innerText = currentSelectedYearData.denda > 0 ? formatRupiah(currentSelectedYearData.denda) : 'Rp 0 (Nihil)';
+        txtDenda.className = currentSelectedYearData.denda > 0 ? 'font-mono font-semibold text-rose-600' : 'font-mono font-semibold text-emerald-600';
+      }
+      document.getElementById('txtTotalBayar').innerText = formatRupiah(currentSelectedYearData.nominal);
+
+      const btnAction = document.getElementById('btnActionQris');
+      if (btnAction) {
+        btnAction.innerHTML = `
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span>Bayar dengan QRIS BPD DIY (${formatRupiah(currentSelectedYearData.nominal)})</span>
+        `;
+      }
+
+      showScreen('screenDetail', 'Rincian Tagihan Resmi', `${veh.nopol} - Akumulasi Samsat`, true);
+      currentStep = 3;
+      updateStateUI('DETAIL_CONFIRMED', 1);
+
+      logTrace('INQUIRY', 'Kominfo (JSS) ➔ Samsat', `GET /api/v2/pajak/detail?nopol=${veh.nopol}&mode=accumulation`, {
+        nopol: veh.nopol,
+        periode: currentSelectedYearData.yearsText,
+        rincian: { 
+          pkb_pokok: currentSelectedYearData.pkb, 
+          swdkllj_pokok: currentSelectedYearData.swdkllj, 
+          pnbp: 0, 
+          denda_akumulasi: currentSelectedYearData.denda, 
+          total_akumulasi: currentSelectedYearData.nominal 
+        }
+      });
+    }
+
+    // LIHAT BUKTI e-SKKP TAHUN LALU (DARI LIST SUDAH TERBAYAR)
+    function viewPastEskkp(nopol, tahun, ntpn, nominal, pkb, swdkllj, masaLalu) {
+      const veh = vehicleDatabase[nopol];
+      document.getElementById('docNopol').innerText = nopol;
+      document.getElementById('docMerk').innerText = veh.model;
+      document.getElementById('docMasaPajak').innerText = masaLalu.toUpperCase();
+      document.getElementById('docPkb').innerText = formatRupiah(pkb);
+      document.getElementById('docPkbDenda').innerText = "Rp 0";
+      document.getElementById('docPkbTotal').innerText = formatRupiah(pkb);
+      document.getElementById('docSwdkllj').innerText = formatRupiah(swdkllj);
+      document.getElementById('docSwdklljDenda').innerText = "Rp 0";
+      document.getElementById('docSwdklljTotal').innerText = formatRupiah(swdkllj);
+      document.getElementById('docTotal').innerText = formatRupiah(nominal);
+      document.getElementById('docNtpn').innerText = ntpn;
+
+      showScreen('screenDocument', `e-SKKP Tahun ${tahun}`, 'Arsip Sah SAMSAT DIY', true);
+      currentStep = 6;
+      logTrace('SUCCESS', 'Kominfo (JSS)', `Warga membuka arsip sah e-SKKP lampau tahun ${tahun} untuk nopol ${nopol}. Ref: ${ntpn}`);
+    }
+
+    // STEP 3 -> STEP 4: GENERATE DYNAMIC QRIS DI BPD DIY
+    function requestGenerateQris() {
+      const btn = document.getElementById('btnActionQris');
+      btn.innerHTML = `<span class="animate-spin">⏳</span> Menghubungi Samsat & BPD DIY...`;
+      btn.disabled = true;
+
+      const veh = vehicleDatabase[currentSelectedNopol];
+      const yearData = currentSelectedYearData;
+
+      // Log: Kominfo request billing ke Samsat
+      logTrace('LOCK', 'Kominfo (JSS) ➔ Samsat', `POST /api/v2/billing/create`, {
+        trx_kominfo_id: "trx-jss-" + Date.now(),
+        nopol: veh.nopol,
+        periode: yearData.yearsText,
+        total_nominal: yearData.nominal
+      });
+
+      setTimeout(() => {
+        // Log: Samsat lock DB & request ke BPD DIY
+        updateStateUI('BILLING_LOCKED', 2);
+        logTrace('LOCK', 'Samsat Core Tax', `1. Lock akumulasi tagihan nopol ${veh.nopol} Periode ${yearData.yearsText} di Database Samsat (Mencegah double bill)`);
+        
+        logTrace('BANK', 'Samsat ➔ BPD DIY', `POST /api/v1/qris/generate [Merchant: SAMSAT PROVINSI DIY]`, {
+          merchant_id: "BPD-DIY-SAMSAT-01",
+          billing_samsat_id: billingId,
+          amount: yearData.nominal,
+          expired_minutes: 15,
+          idempotency_key: billingId
+        });
+
+        setTimeout(() => {
+          // BPD kembalikan string QR
+          updateStateUI('QRIS_GENERATED', 2);
+          logTrace('SUCCESS', 'BPD DIY ➔ Samsat', `200 OK: Dynamic QRIS Generated & Payload ASPI siap`, {
+            bpd_trx_id: "BPD-QR-" + Math.floor(100000 + Math.random() * 900000),
+            qr_string: "00020101021226600016ID.GO.DIY.BPD01...",
+            expired_at: new Date(Date.now() + 15 * 60000).toISOString()
+          });
+
+          // Tampilkan ke layar QRIS
+          document.getElementById('qrisNominal').innerText = formatRupiah(yearData.nominal);
+          document.getElementById('txtBillingId').innerText = billingId;
+          
+          showScreen('screenQris', 'Pindai QRIS BPD DIY', `Dynamic QR - ${veh.nopol} (${yearData.yearsText})`, true);
+          startCountdown();
+          currentStep = 4;
+
+          btn.innerHTML = `
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span>Bayar dengan QRIS BPD DIY (${formatRupiah(yearData.nominal)})</span>
+          `;
+          btn.disabled = false;
+        }, 600);
+      }, 500);
+    }
+
+    // Timer Countdown Hitung Mundur 15 Menit
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      secondsLeft = 15 * 60;
+      
+      countdownInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+          clearInterval(countdownInterval);
+          handleBillingExpired();
+          return;
+        }
+        const m = Math.floor(secondsLeft / 60);
+        const s = secondsLeft % 60;
+        document.getElementById('countdownTimer').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    // Simulasi Jika Expired (Auto Unlock)
+    function handleBillingExpired() {
+      updateStateUI('EXPIRED', 2);
+      logTrace('WARN', 'Samsat Scheduler', `CRON Auto-Release: QRIS expired 15 menit. Tagihan nopol ${currentSelectedNopol} otomatis di-UNLOCK.`);
+      alert('Masa berlaku QRIS telah habis (15 menit). Tagihan dilepas kembali oleh Samsat.');
+      goBackScreen();
+    }
+
+    // STEP 4 -> STEP 5: SIMULASI PEMBAYARAN SUKSES (CHAIN NOTIFICATION)
+    function simulatePaymentSuccess() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      const bpdTrxId = "BPD-QR-98218192";
+      currentNtpn = "NTPN-20261106-BPD" + Math.floor(1000 + Math.random() * 9000);
+      const veh = vehicleDatabase[currentSelectedNopol];
+      const yearData = currentSelectedYearData;
+
+      // STEP 1: BPD kirim webhook ke SAMSAT DIY
+      updateStateUI('PAID', 3);
+      logTrace('BANK', 'BPD DIY ➔ Samsat', `POST /webhook/v2/payment-notification (Nasabah scan & bayar via Mobile Banking)`, {
+        headers: {
+          "X-BPD-Signature": "hmac-sha256-8a9d12f...",
+          "X-BPD-Timestamp": Math.floor(Date.now() / 1000),
+          "X-Idempotency-Key": bpdTrxId
+        },
+        body: { bpd_trx_id: bpdTrxId, billing_samsat_id: billingId, amount: yearData.nominal, status: "SUCCESS" }
+      });
+
+      // STEP 2: Samsat validasi, bukukan lunas, terbitkan e-SKKP
+      setTimeout(() => {
+        updateStateUI('SETTLED', 4);
+        logTrace('SUCCESS', 'Samsat Core Tax', `1. Verifikasi Signature BPD: VALID\n2. Status Database: LUNAS AKUMULASI (${yearData.yearsText})\n3. Terbitkan NTPN: ${currentNtpn}\n4. Terbitkan Dokumen Digital e-SKKP Sah`);
+
+        // STEP 3: Samsat kirim webhook berantai ke KOMINFO (JSS)
+        logTrace('SUCCESS', 'Samsat ➔ Kominfo (JSS)', `POST /webhook/v2/payment-success (Chain Webhook + Dokumen Sah)`, {
+          headers: { "X-SAM-Signature": "hmac-sha256-4f7b2...", "X-Idempotency-Key": billingId },
+          body: {
+            billing_samsat_id: billingId,
+            nopol: veh.nopol,
+            periode: yearData.yearsText,
+            ntpn: currentNtpn,
+            status: "SETTLED",
+            skkp_download_url: "https://samsat.jogjaprov.go.id/eskkp/download/" + currentNtpn
+          }
+        });
+
+        // STEP 4: Kominfo push ke App Warga
+        setTimeout(() => {
+          document.getElementById('resNtpn').innerText = currentNtpn;
+          document.getElementById('resNopol').innerText = veh.nopol;
+          document.getElementById('resPeriodeTahun').innerText = yearData.isAccumulated 
+            ? `Akumulasi 2 Tahun (${yearData.yearsText})` 
+            : `Tahun ${yearData.yearsText}`;
+          document.getElementById('resMasaPajak').innerText = yearData.masaPajakBaru;
+          document.getElementById('resTotal').innerText = formatRupiah(yearData.nominal);
+          
+          showScreen('screenSuccess', 'Status Pelunasan Sah', 'Samsat DIY & BPD DIY', false);
+          currentStep = 5;
+          logTrace('SUCCESS', 'Kominfo (JSS)', `WebSocket Push Notification dikirim ke smartphone Warga: Pajak LUNAS!`);
+        }, 500);
+
+      }, 600);
+    }
+
+    // STEP 5 -> STEP 6: BUKA DOKUMEN e-SKKP LANGSUNG DI DALAM HP
+    function openMobileDocumentScreen() {
+      const veh = vehicleDatabase[currentSelectedNopol];
+      const yearData = currentSelectedYearData;
+
+      document.getElementById('docNopol').innerText = veh.nopol;
+      document.getElementById('docMerk').innerText = veh.model;
+      document.getElementById('docMasaPajak').innerText = yearData.masaPajakBaru.toUpperCase();
+      
+      document.getElementById('docPkb').innerText = formatRupiah(yearData.pkb);
+      document.getElementById('docPkbDenda').innerText = formatRupiah(yearData.dendaPkb || 0);
+      document.getElementById('docPkbTotal').innerText = formatRupiah(yearData.pkb + (yearData.dendaPkb || 0));
+      
+      document.getElementById('docSwdkllj').innerText = formatRupiah(yearData.swdkllj);
+      document.getElementById('docSwdklljDenda').innerText = formatRupiah(yearData.dendaSwdkllj || 0);
+      document.getElementById('docSwdklljTotal').innerText = formatRupiah(yearData.swdkllj + (yearData.dendaSwdkllj || 0));
+      
+      document.getElementById('docTotal').innerText = formatRupiah(yearData.nominal);
+      document.getElementById('docNtpn').innerText = currentNtpn;
+
+      const docTitle = yearData.isAccumulated ? `e-SKKP Sah (Akumulasi 2 Tahun)` : `e-SKKP Sah (Tahun ${yearData.yearsText})`;
+      showScreen('screenDocument', docTitle, 'SAMSAT DIY x JSS', true);
+      currentStep = 6;
+
+      logTrace('SUCCESS', 'Kominfo (JSS)', `Warga membuka dokumen digital sah e-SKKP di dalam aplikasi JSS. Ref: ${currentNtpn}`);
+    }
+
+    // Action Unduh PDF dari dalam HP
+    function downloadEskkpPdf() {
+      const btn = document.getElementById('btnDownloadDoc');
+      btn.innerHTML = `<span class="animate-spin">⏳</span> Mengunduh Dokumen e-SKKP...`;
+      setTimeout(() => {
+        btn.innerHTML = `✓ Dokumen Tersimpan di Memori HP`;
+        btn.className = "w-full py-2.5 bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow transition";
+        alert('Dokumen resmi e-SKKP berformat PDF berhasil diunduh dan disimpan ke memori smartphone Warga!');
+      }, 700);
+    }
+
+    // Action Share
+    function shareEskkpDoc() {
+      alert(`Bagikan e-SKKP Nopol ${currentSelectedNopol} (NTPN: ${currentNtpn}) melalui WhatsApp / Email`);
+    }
+
+    // Tombol Fallback: Cek Status Manual
+    function checkStatusFallback() {
+      logTrace('INQUIRY', 'Kominfo (JSS) ➔ Samsat', `GET /api/v2/billing/status?billing_samsat_id=${billingId}`);
+      setTimeout(() => {
+        logTrace('INQUIRY', 'Samsat ➔ BPD DIY', `GET /api/v1/qris/status?bpd_trx_id=BPD-QR-98218192`);
+        setTimeout(() => {
+          alert('Status BPD: Belum ada pembayaran masuk dari bank. Silakan lakukan pembayaran pada QRIS.');
+        }, 300);
+      }, 300);
+    }
+
+    // Tombol Cancel Manual
+    function cancelCurrentBilling() {
+      if (confirm('Batalkan kode billing ini? Lock tagihan di Samsat akan langsung dilepas.')) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        logTrace('WARN', 'Kominfo (JSS) ➔ Samsat', `DELETE /api/v2/billing/${billingId} [User Cancelled]`);
+        logTrace('WARN', 'Samsat Core', `Tagihan nopol ${currentSelectedNopol} berhasil di-CANCEL & LOCK dilepas.`);
+        updateStateUI('CANCELLED', 2);
+        goBackScreen();
+      }
+    }
+
+    // Back Button Handler (Tetap di dalam HP)
+    function goBackScreen() {
+      if (currentStep === 2) {
+        showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+        currentStep = 1;
+        updateStateUI('READY', 0);
+      } else if (currentStep === 3) {
+        showScreen('screenYears', 'Pilih Periode Pajak', `${currentSelectedNopol} - Samsat DIY`, true);
+        currentStep = 2;
+        updateStateUI('TAHUN_LOADED', 1);
+      } else if (currentStep === 4) {
+        if (confirm('Tinggalkan halaman QRIS? Billing akan tetap aktif selama masa berlaku.')) {
+          showScreen('screenDetail', 'Rincian Tagihan Pajak', `${currentSelectedNopol} - Samsat DIY`, true);
+          currentStep = 3;
+        }
+      } else if (currentStep === 6) {
+        if (currentSelectedYearData && (currentSelectedYearData.status === 'BELUM_LUNAS' || currentSelectedYearData.isAccumulated)) {
+          showScreen('screenSuccess', 'Status Pelunasan Sah', 'Samsat DIY & BPD DIY', false);
+          currentStep = 5;
+        } else {
+          showScreen('screenYears', 'Pilih Periode Pajak', `${currentSelectedNopol} - Samsat DIY`, true);
+          currentStep = 2;
+        }
+      }
+    }
+
+    function goBackToStart() {
+      showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+      currentStep = 1;
+      updateStateUI('IDLE / READY', 0);
+    }
+
+    // Reset All State
+    function resetAllState() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      currentStep = 1;
+      currentSelectedNopol = 'AB 2481 XZ';
+      currentSelectedYearData = null;
+      billingId = 'BILL-DIY-' + Math.floor(1000 + Math.random() * 9000);
+      currentNtpn = 'NTPN-20261106-BPD' + Math.floor(1000 + Math.random() * 9000);
+      showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+      updateStateUI('IDLE / READY', 0);
+      document.getElementById('traceTerminal').innerHTML = `
+        <div class="text-slate-500">// Simulasi di-reset. Sistem siap untuk presentasi meeting...</div>
+        <div class="text-cyan-300">[READY] Akun Warga Terverifikasi di JSS (NIK: 347101******0002).</div>
+      `;
+    }
+
+    // Toggle Log Panel on/off
+    function toggleTracePanel() {
+      const panel = document.getElementById('panelArchitecture');
+      const label = document.getElementById('logToggleLabel');
+      isLogPanelVisible = !isLogPanelVisible;
+      if (isLogPanelVisible) {
+        panel.classList.remove('hidden');
+        label.innerText = 'Sembunyikan Panel Log API';
+      } else {
+        panel.classList.add('hidden');
+        label.innerText = 'Tampilkan Panel Log API';
+      }
+    }
+
+    // Live clock update
+    setInterval(() => {
+      const now = new Date();
+      const str = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('liveClock').innerText = str;
+    }, 1000);
+  </script>
+</body>
+</html>
