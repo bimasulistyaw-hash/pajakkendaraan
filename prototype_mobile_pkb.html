@@ -32,12 +32,6 @@
     .jss-gradient-card {
       background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     }
-    
-    /* Watermark for mobile e-SKKP */
-    .eskkp-watermark {
-      background-image: radial-gradient(#0a4f9d 0.8px, transparent 0.8px);
-      background-size: 14px 14px;
-    }
 
     /* Subtle shadow presets */
     .shadow-soft {
@@ -582,114 +576,133 @@
             </div>
 
             <!-- ================= SCREEN 6: IN-APP MOBILE e-SKKP DOCUMENT VIEWER ================= -->
-            <div id="screenDocument" class="space-y-3 hidden">
+            <div id="screenDocument" class="space-y-3.5 hidden">
               
-              <!-- Document Container Inside Mobile Phone -->
-              <div class="bg-white rounded-2xl border border-slate-300 shadow-soft p-3.5 space-y-3 eskkp-watermark text-slate-900">
+              <!-- Document Container Inside Mobile Phone (Clean Official White Paper) -->
+              <div class="bg-white rounded-2xl border-2 border-slate-200/90 shadow-soft p-4 space-y-3.5 text-slate-900 relative overflow-hidden">
                 
+                <!-- Watermark Logo Samar (Hanya 3.5% Opacity, Tidak Menutupi Teks) -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.035] z-0">
+                  <div class="w-48 h-48 rounded-full border-[12px] border-slate-900 flex items-center justify-center font-black text-6xl text-slate-900 rotate-[-15deg]">
+                    DIY
+                  </div>
+                </div>
+
                 <!-- Official Kop Surat Pemda DIY -->
-                <div class="border-b-2 border-slate-900 pb-2.5 flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-[#073a74] text-white font-black flex items-center justify-center text-[10px] shadow-xs">
+                <div class="border-b-2 border-slate-900 pb-2.5 flex items-center justify-between relative z-10">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#073a74] text-white font-black flex items-center justify-center text-[11px] shadow-sm tracking-wider flex-shrink-0">
                       DIY
                     </div>
                     <div>
-                      <h4 class="font-black text-[9px] uppercase tracking-wider text-slate-900 leading-tight">PEMERINTAH DAERAH D.I. YOGYAKARTA</h4>
-                      <p class="text-[7.5px] text-slate-600 font-bold leading-none">BADAN PENGELOLA KEUANGAN DAN ASET DAERAH</p>
-                      <p class="text-[7px] text-[#0a4f9d] font-semibold leading-none mt-0.5">SAMSAT PROVINSI D.I. YOGYAKARTA</p>
+                      <h4 class="font-black text-[9.5px] uppercase tracking-wider text-slate-900 leading-tight">PEMERINTAH DAERAH D.I. YOGYAKARTA</h4>
+                      <p class="text-[8px] text-slate-600 font-bold leading-tight">BADAN PENGELOLA KEUANGAN DAN ASET DAERAH</p>
+                      <p class="text-[7.5px] text-[#0a4f9d] font-semibold leading-none mt-0.5">SAMSAT PROVINSI DAERAH ISTIMEWA YOGYAKARTA</p>
                     </div>
                   </div>
-                  <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[8px] font-mono font-bold border border-emerald-300">
-                    SAH ELEKTRONIK
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[8px] font-mono font-bold border border-emerald-300 flex items-center gap-1 flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> SAH ELEKTRONIK
                   </span>
                 </div>
 
                 <!-- Judul Dokumen e-SKKP -->
-                <div class="text-center pt-0.5">
-                  <h5 class="font-black text-[10px] uppercase underline text-slate-900 tracking-tight">
-                    SURAT KETETAPAN KEWAJIBAN PEMBAYARAN ELEKTRONIK (e-SKKP)
+                <div class="text-center pt-0.5 relative z-10">
+                  <h5 class="font-black text-[10.5px] uppercase tracking-wide text-slate-900">
+                    SURAT KETETAPAN KEWAJIBAN PEMBAYARAN ELEKTRONIK
                   </h5>
-                  <p class="text-[8px] text-slate-500 font-mono mt-0.5">
-                    Diterbitkan Sah secara Digital melalui Kanal Jogja Smart Service (JSS)
+                  <p class="font-extrabold text-[10px] text-[#0a4f9d] tracking-widest mt-0.5">
+                    ( e - S K K P )
+                  </p>
+                  <p class="text-[8px] text-slate-400 font-mono mt-0.5">
+                    No. Dokumen: e-SKKP/DIY/2026/XI/9812 • Sah Melalui Portal JSS
                   </p>
                 </div>
 
-                <!-- Info Objek Pajak Kendaraan -->
-                <div class="bg-slate-50/90 p-2.5 rounded-xl border border-slate-200 text-[9.5px] space-y-1">
-                  <div class="grid grid-cols-3">
+                <!-- Info Objek Pajak Kendaraan (Clean Data Card) -->
+                <div class="bg-slate-50/90 rounded-xl p-3 border border-slate-200/80 text-[10px] space-y-1.5 relative z-10">
+                  <div class="flex justify-between items-center py-0.5 border-b border-slate-200/60">
                     <span class="text-slate-500 font-medium">No. Registrasi (Nopol)</span>
-                    <span id="docNopol" class="col-span-2 font-mono font-black text-slate-900">AB 2481 XZ</span>
+                    <span id="docNopol" class="font-mono font-black text-slate-950 bg-slate-200/80 px-2 py-0.5 rounded text-[10.5px]">AB 2481 XZ</span>
                   </div>
-                  <div class="grid grid-cols-3">
+                  <div class="flex justify-between items-center py-0.5 border-b border-slate-200/60">
                     <span class="text-slate-500 font-medium">Nama Pemilik</span>
-                    <span class="col-span-2 font-bold text-slate-800">RADEN MAS DANANG P.</span>
+                    <span class="font-bold text-slate-900">RADEN MAS DANANG P.</span>
                   </div>
-                  <div class="grid grid-cols-3">
+                  <div class="flex justify-between items-center py-0.5 border-b border-slate-200/60">
                     <span class="text-slate-500 font-medium">NIK Warga (Masked)</span>
-                    <span class="col-span-2 font-mono font-semibold text-slate-700">347101******0002</span>
+                    <span class="font-mono font-semibold text-slate-700">347101******0002</span>
                   </div>
-                  <div class="grid grid-cols-3">
-                    <span class="text-slate-500 font-medium">Merk / Tipe</span>
-                    <span id="docMerk" class="col-span-2 font-medium text-slate-800">Honda Vario 160 ABS (2022)</span>
+                  <div class="flex justify-between items-center py-0.5 border-b border-slate-200/60">
+                    <span class="text-slate-500 font-medium">Merk / Model</span>
+                    <span id="docMerk" class="font-medium text-slate-800">Honda Vario 160 ABS (2022)</span>
                   </div>
-                  <div class="grid grid-cols-3">
+                  <div class="flex justify-between items-center py-0.5">
                     <span class="text-slate-500 font-medium">Masa Pajak Baru</span>
-                    <span id="docMasaPajak" class="col-span-2 font-black text-emerald-700">28 NOVEMBER 2027</span>
+                    <span id="docMasaPajak" class="font-black text-emerald-700 font-mono">28 NOVEMBER 2027</span>
                   </div>
                 </div>
 
-                <!-- Rincian Biaya Dokumen -->
-                <table class="w-full text-[9px] border border-slate-300">
-                  <thead class="bg-slate-100 font-bold text-slate-800">
-                    <tr>
-                      <th class="p-1 border border-slate-300 text-left">Komponen Penerimaan</th>
-                      <th class="p-1 border border-slate-300 text-right">Pokok</th>
-                      <th class="p-1 border border-slate-300 text-right">Denda</th>
-                      <th class="p-1 border border-slate-300 text-right">Jumlah</th>
-                    </tr>
-                  </thead>
-                  <tbody class="text-slate-700">
-                    <tr>
-                      <td class="p-1 border border-slate-300">1. PKB (Pajak Kendaraan)</td>
-                      <td id="docPkb" class="p-1 border border-slate-300 text-right font-mono">Rp 630.000</td>
-                      <td id="docPkbDenda" class="p-1 border border-slate-300 text-right font-mono">Rp 40.000</td>
-                      <td id="docPkbTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 670.000</td>
-                    </tr>
-                    <tr>
-                      <td class="p-1 border border-slate-300">2. SWDKLLJ (Jasa Raharja)</td>
-                      <td id="docSwdkllj" class="p-1 border border-slate-300 text-right font-mono">Rp 70.000</td>
-                      <td id="docSwdklljDenda" class="p-1 border border-slate-300 text-right font-mono">Rp 10.000</td>
-                      <td id="docSwdklljTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 80.000</td>
-                    </tr>
-                    <tr>
-                      <td class="p-1 border border-slate-300">3. PNBP Pengesahan STNK</td>
-                      <td class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
-                      <td class="p-1 border border-slate-300 text-right font-mono">Rp 0</td>
-                      <td id="docPnbpTotal" class="p-1 border border-slate-300 text-right font-mono font-bold">Rp 0</td>
-                    </tr>
-                    <tr class="bg-emerald-50 font-black text-emerald-950">
-                      <td colspan="3" class="p-1.5 border border-slate-300 text-right">JUMLAH TOTAL LUNAS</td>
-                      <td id="docTotal" class="p-1.5 border border-slate-300 text-right font-mono text-[10px]">Rp 750.000</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <!-- Rincian Biaya Dokumen (Clean Financial Table) -->
+                <div class="rounded-xl border border-slate-200/90 overflow-hidden shadow-2xs relative z-10">
+                  <table class="w-full text-[9.5px]">
+                    <thead class="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                      <tr>
+                        <th class="py-1.5 px-2 text-left">Komponen Penerimaan</th>
+                        <th class="py-1.5 px-2 text-right">Pokok</th>
+                        <th class="py-1.5 px-2 text-right">Denda</th>
+                        <th class="py-1.5 px-2 text-right">Jumlah</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700 bg-white">
+                      <tr>
+                        <td class="py-1.5 px-2 font-medium">1. PKB (Pajak Kendaraan)</td>
+                        <td id="docPkb" class="py-1.5 px-2 text-right font-mono text-slate-600">Rp 630.000</td>
+                        <td id="docPkbDenda" class="py-1.5 px-2 text-right font-mono text-slate-600">Rp 40.000</td>
+                        <td id="docPkbTotal" class="py-1.5 px-2 text-right font-mono font-bold text-slate-900">Rp 670.000</td>
+                      </tr>
+                      <tr class="bg-slate-50/60">
+                        <td class="py-1.5 px-2 font-medium">2. SWDKLLJ (Jasa Raharja)</td>
+                        <td id="docSwdkllj" class="py-1.5 px-2 text-right font-mono text-slate-600">Rp 70.000</td>
+                        <td id="docSwdklljDenda" class="py-1.5 px-2 text-right font-mono text-slate-600">Rp 10.000</td>
+                        <td id="docSwdklljTotal" class="py-1.5 px-2 text-right font-mono font-bold text-slate-900">Rp 80.000</td>
+                      </tr>
+                      <tr>
+                        <td class="py-1.5 px-2 font-medium">3. PNBP Pengesahan STNK</td>
+                        <td class="py-1.5 px-2 text-right font-mono text-slate-400">Rp 0</td>
+                        <td class="py-1.5 px-2 text-right font-mono text-slate-400">Rp 0</td>
+                        <td id="docPnbpTotal" class="py-1.5 px-2 text-right font-mono font-semibold text-slate-600">Rp 0</td>
+                      </tr>
+                      <tr class="bg-emerald-50/90 font-black text-emerald-950 border-t-2 border-emerald-400">
+                        <td colspan="3" class="py-2 px-2.5 text-right font-bold text-[10px] tracking-tight">TOTAL PELUNASAN SAH :</td>
+                        <td id="docTotal" class="py-2 px-2 text-right font-mono text-[11px] font-black text-emerald-900">Rp 750.000</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
                 <!-- Bagian Validasi Digital & QR Verification -->
-                <div class="border border-slate-300 rounded-xl p-2 bg-slate-50/70 flex items-center justify-between text-[8.5px]">
-                  <div>
+                <div class="border border-slate-200/90 rounded-xl p-3 bg-slate-50/90 flex items-center justify-between text-[9px] relative z-10">
+                  <div class="space-y-0.5">
                     <p class="font-bold text-slate-800">Nomor Transaksi Pembayaran Pajak (NTPN):</p>
-                    <p id="docNtpn" class="font-mono text-[#0a4f9d] font-black text-[10px]">NTPN-20261106-9812BPD</p>
-                    <p class="text-slate-500 text-[8px] mt-0.5">Tervalidasi Bank Persepsi: <strong>BANK BPD DIY</strong></p>
-                    <p class="text-emerald-700 font-semibold text-[8px]">Status: TERTIB PAJAK KENDARAAN</p>
+                    <p id="docNtpn" class="font-mono text-[#0a4f9d] font-black text-[11px]">NTPN-20261106-9812BPD</p>
+                    <p class="text-slate-500 text-[8.5px]">Tervalidasi Bank Persepsi: <strong class="text-slate-700">BANK BPD DIY</strong></p>
+                    <p class="text-emerald-700 font-bold text-[8.5px] flex items-center gap-1 mt-0.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Status: TERTIB PAJAK (LUNAS SAH)
+                    </p>
                   </div>
                   <!-- Mini QR Stamp -->
-                  <div class="w-12 h-12 bg-white border border-slate-300 rounded-lg p-0.5 flex flex-col items-center justify-center text-center shadow-2xs">
-                    <svg class="w-8 h-8 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                  <div class="w-13 h-13 bg-white border border-slate-300 rounded-xl p-1.5 flex flex-col items-center justify-center text-center shadow-xs flex-shrink-0">
+                    <svg class="w-8 h-8 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 2h2v2h-2v-2zm-4-4h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2z"/>
                     </svg>
-                    <span class="text-[5.5px] font-mono text-slate-500 font-bold leading-none">VALID SAMSAT</span>
+                    <span class="text-[6px] font-mono text-slate-500 font-bold leading-none mt-0.5">VALID SAMSAT</span>
                   </div>
                 </div>
+
+                <!-- Catatan Hukum -->
+                <p class="text-[7.5px] text-slate-400 text-center leading-tight italic relative z-10">
+                  Dokumen digital e-SKKP ini sah berkekuatan hukum penuh sesuai UU ITE No. 1/2024 & Pergub DIY tanpa memerlukan stempel cap basah fisik.
+                </p>
 
               </div>
 
