@@ -808,8 +808,46 @@
         <div id="traceTerminal" class="h-80 overflow-y-auto bg-slate-950 rounded-xl p-3.5 border border-slate-800 font-mono text-[11px] leading-relaxed space-y-2 text-slate-200 shadow-inner">
           <div class="text-slate-500">// Sistem siap untuk simulasi rapat integrasi bersama Samsat & BPD DIY...</div>
           <div class="text-cyan-300 font-semibold">[READY] Akun Warga Terverifikasi di JSS (NIK: 347101******0002).</div>
-          <div class="text-slate-300">[GET] Kominfo (JSS Backend) ➔ Samsat DIY: GET /api/v2/kendaraan?nik=347101******0002 [mTLS Handshake OK]</div>
-          <div class="text-emerald-400 pl-3">↳ 2 Kendaraan berhasil dimuat dari database Samsat DIY.</div>
+          <div>
+            <span class="text-slate-500">[09:41:00]</span> <span class="text-cyan-300">[Kominfo (JSS Backend) ➔ Samsat] GET /api/v2/kendaraan?nik=347101******0002 [mTLS OK]</span>
+            <div class="text-emerald-400 pl-3">↳ 200 OK: 2 Kendaraan berhasil dimuat dari Database Samsat DIY</div>
+            <pre class="mt-1 p-2 bg-slate-900 border border-slate-800 rounded-lg text-[10px] text-slate-300 overflow-x-auto">{
+  "status": "SUCCESS",
+  "nik": "347101******0002",
+  "nama_pemilik": "RADEN MAS DANANG P.",
+  "total_kendaraan": 2,
+  "data_kendaraan": [
+    {
+      "nopol": "AB 2481 XZ",
+      "merk": "Honda",
+      "tipe": "Vario 160 ABS (2022)",
+      "no_rangka": "MH1KF8123NK098124",
+      "no_mesin": "KF81E1928371",
+      "masa_pajak": "28 Nov 2026",
+      "status_tagihan": "MENUNGGAK_2_TAHUN",
+      "tagihan": {
+        "periode_akumulasi": [2025, 2026],
+        "total_nominal": 750000,
+        "ada_denda": true
+      }
+    },
+    {
+      "nopol": "AB 1892 YQ",
+      "merk": "Toyota",
+      "tipe": "Avanza 1.5 G MT (2021)",
+      "no_rangka": "MHFM2BA31NK019821",
+      "no_mesin": "2NRE8192831",
+      "masa_pajak": "15 Apr 2027",
+      "status_tagihan": "PERIODE_BERJALAN",
+      "tagihan": {
+        "periode_akumulasi": [2027],
+        "total_nominal": 2450000,
+        "ada_denda": false
+      }
+    }
+  ]
+}</pre>
+          </div>
         </div>
       </div>
 
@@ -1508,6 +1546,56 @@
       updateStateUI('IDLE / READY', 0);
     }
 
+    // Function to render initial Inquiry Log
+    function renderInitialInquiryLog() {
+      const term = document.getElementById('traceTerminal');
+      const time = new Date().toLocaleTimeString('id-ID');
+      term.innerHTML = `
+        <div class="text-slate-500">// Sistem siap untuk simulasi rapat integrasi bersama Samsat & BPD DIY...</div>
+        <div class="text-cyan-300 font-semibold">[READY] Akun Warga Terverifikasi di JSS (NIK: 347101******0002).</div>
+        <div>
+          <span class="text-slate-500">[${time}]</span> <span class="text-cyan-300">[Kominfo (JSS Backend) ➔ Samsat] GET /api/v2/kendaraan?nik=347101******0002 [mTLS OK]</span>
+          <div class="text-emerald-400 pl-3">↳ 200 OK: 2 Kendaraan berhasil dimuat dari Database Samsat DIY</div>
+          <pre class="mt-1 p-2 bg-slate-900 border border-slate-800 rounded-lg text-[10px] text-slate-300 overflow-x-auto">{
+  "status": "SUCCESS",
+  "nik": "347101******0002",
+  "nama_pemilik": "RADEN MAS DANANG P.",
+  "total_kendaraan": 2,
+  "data_kendaraan": [
+    {
+      "nopol": "AB 2481 XZ",
+      "merk": "Honda",
+      "tipe": "Vario 160 ABS (2022)",
+      "no_rangka": "MH1KF8123NK098124",
+      "no_mesin": "KF81E1928371",
+      "masa_pajak": "28 Nov 2026",
+      "status_tagihan": "MENUNGGAK_2_TAHUN",
+      "tagihan": {
+        "periode_akumulasi": [2025, 2026],
+        "total_nominal": 750000,
+        "ada_denda": true
+      }
+    },
+    {
+      "nopol": "AB 1892 YQ",
+      "merk": "Toyota",
+      "tipe": "Avanza 1.5 G MT (2021)",
+      "no_rangka": "MHFM2BA31NK019821",
+      "no_mesin": "2NRE8192831",
+      "masa_pajak": "15 Apr 2027",
+      "status_tagihan": "PERIODE_BERJALAN",
+      "tagihan": {
+        "periode_akumulasi": [2027],
+        "total_nominal": 2450000,
+        "ada_denda": false
+      }
+    }
+  ]
+}</pre>
+        </div>
+      `;
+    }
+
     // Reset All State
     function resetAllState() {
       if (countdownInterval) clearInterval(countdownInterval);
@@ -1518,10 +1606,7 @@
       currentNtpn = 'NTPN-20261106-BPD' + Math.floor(1000 + Math.random() * 9000);
       showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
       updateStateUI('IDLE / READY', 0);
-      document.getElementById('traceTerminal').innerHTML = `
-        <div class="text-slate-500">// Simulasi di-reset. Sistem siap untuk presentasi meeting...</div>
-        <div class="text-cyan-300">[READY] Akun Warga Terverifikasi di JSS (NIK: 347101******0002).</div>
-      `;
+      renderInitialInquiryLog();
     }
 
     // Toggle Log Panel on/off
