@@ -1319,10 +1319,11 @@
 
       const veh = vehicleDatabase[currentSelectedNopol];
       const yearData = currentSelectedYearData;
+      const trxKominfoId = "trx-jss-" + Date.now();
 
       // Log: Kominfo request billing ke Samsat
       logTrace('LOCK', 'Kominfo (JSS) ➔ Samsat', `POST /api/v2/billing/create`, {
-        trx_kominfo_id: "trx-jss-" + Date.now(),
+        trx_kominfo_id: trxKominfoId,
         nopol: veh.nopol,
         periode: yearData.yearsText,
         total_nominal: yearData.nominal
@@ -1342,28 +1343,51 @@
         });
 
         setTimeout(() => {
-          // BPD kembalikan string QR
-          updateStateUI('QRIS_GENERATED', 2);
-          logTrace('SUCCESS', 'BPD DIY ➔ Samsat', `200 OK: Dynamic QRIS Generated & Payload ASPI siap`, {
-            bpd_trx_id: "BPD-QR-" + Math.floor(100000 + Math.random() * 900000),
-            qr_string: "00020101021226600016ID.GO.DIY.BPD01...",
-            expired_at: new Date(Date.now() + 15 * 60000).toISOString()
+          // BPD kembalikan string QR ke Samsat
+          const bpdTrxId = "BPD-QR-" + Math.floor(100000 + Math.random() * 900000);
+          const qrString = "00020101021226600016ID.GO.DIY.BPD01...";
+          const expiredAt = new Date(Date.now() + 15 * 60000).toISOString();
+
+          logTrace('BANK', 'BPD DIY ➔ Samsat', `200 OK: Dynamic QRIS Generated & Payload ASPI siap`, {
+            bpd_trx_id: bpdTrxId,
+            qr_string: qrString,
+            expired_at: expiredAt
           });
 
-          // Tampilkan ke layar QRIS
-          document.getElementById('qrisNominal').innerText = formatRupiah(yearData.nominal);
-          document.getElementById('txtBillingId').innerText = billingId;
-          
-          showScreen('screenQris', 'Pindai QRIS BPD DIY', `Dynamic QR - ${veh.nopol} (${yearData.yearsText})`, true);
-          startCountdown();
-          currentStep = 4;
+          setTimeout(() => {
+            // Samsat kembalikan 200 OK ke Kominfo (JSS Backend)
+            updateStateUI('QRIS_GENERATED', 2);
+            logTrace('SUCCESS', 'Samsat ➔ Kominfo (JSS)', `200 OK: Billing Terkunci & QRIS Payload Siap Ditampilkan`, {
+              status: "BILLING_LOCKED",
+              billing_samsat_id: billingId,
+              trx_kominfo_id: trxKominfoId,
+              nopol: veh.nopol,
+              periode: yearData.yearsText,
+              total_nominal: yearData.nominal,
+              qr_string: qrString,
+              expired_at: expiredAt,
+              merchant: "SAMSAT PROVINSI D.I. YOGYAKARTA",
+              pjp: "BANK BPD DIY"
+            });
 
-          btn.innerHTML = `
-            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-            <span>Bayar dengan QRIS BPD DIY (${formatRupiah(yearData.nominal)})</span>
-          `;
-          btn.disabled = false;
-        }, 600);
+            // Kominfo teruskan ke App Mobile Warga
+            logTrace('SUCCESS', 'Kominfo (JSS) ➔ App Mobile', `Render Dynamic QRIS & Timer 15 Menit di Smartphone Warga`);
+
+            // Tampilkan ke layar QRIS
+            document.getElementById('qrisNominal').innerText = formatRupiah(yearData.nominal);
+            document.getElementById('txtBillingId').innerText = billingId;
+            
+            showScreen('screenQris', 'Pindai QRIS BPD DIY', `Dynamic QR - ${veh.nopol} (${yearData.yearsText})`, true);
+            startCountdown();
+            currentStep = 4;
+
+            btn.innerHTML = `
+              <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+              <span>Bayar dengan QRIS BPD DIY (${formatRupiah(yearData.nominal)})</span>
+            `;
+            btn.disabled = false;
+          }, 450);
+        }, 500);
       }, 500);
     }
 
