@@ -56,60 +56,58 @@ flowchart LR
 
 ---
 
-## 3. Alur Proses End-to-End (High-Level)
+## 3. Alur Proses End-to-End (High-Level 6 Langkah)
 
 ```mermaid
 flowchart TD
-    subgraph Auth["🔐 Otentikasi & Identity"]
-        S0["0. Login SSO JSS<br/>(NIK diambil server-side, tidak terekspos ke client)"]
+    subgraph Step1["1. 🔐 Otentikasi & Inquiry Kendaraan (Kominfo ➔ Samsat)"]
+        S0["Login SSO JSS<br/>(NIK 347101******0002 diekstrak server-side)"] --> S1["mTLS Handshake & Validasi NIK di Samsat"]
+        S1 --> S2["Samsat Return Daftar Kendaraan Terdaftar<br/>(Live Data: Status Tunggakan & Estimasi Tagihan)"]
     end
 
-    subgraph Inquiry["🔍 Inquiry & Validasi (Kominfo ➔ Samsat)"]
-        S0 --> S1["1. Verifikasi NIK di Samsat"]
-        S1 --> S2["2. Get Daftar Nopol Kendaraan"]
-        S2 --> S3["3. Get Daftar Tahun Pajak per Nopol"]
-        S3 --> S4["4. Get Detail Rincian Tagihan Resmi"]
+    subgraph Step2["2. 📋 Cek Tunggakan & Aturan FIFO (Pemisahan Belum vs Lunas)"]
+        S2 --> S3a["Query Daftar Tahun Pajak per Nopol<br/>(GET /api/v2/pajak/tahun?nopol=...)"]
+        S3a --> S3b["Penegakan Aturan FIFO Biller Samsat:<br/>- Atas: Card 1 (Tertunggak) + Card 2 (Berjalan)<br/>- Bawah: Riwayat Tahun Lunas (Arsip e-SKKP)"]
     end
 
-    subgraph BillingGen["🧾 Generate Billing & QRIS (Kominfo ➔ Samsat ➔ BPD)"]
-        S4 --> S5["5a. Kominfo Request Billing ke Samsat"]
-        S5 --> S5b["5b. Samsat Lock Tagihan & Request QRIS ke BPD"]
-        S5b --> S5c["5c. BPD Generate Dynamic QRIS<br/>(TTL: 15 menit)"]
-        S5c --> S5d["5d. QRIS dikirim balik ke Kominfo → Tampil ke User"]
+    subgraph Step3["3. 🔒 Rincian Billing Resmi & Lock Database Samsat"]
+        S3b --> S4["Inquiry Rincian Akumulasi Tagihan Resmi<br/>(PKB, SWDKLLJ Jasa Raharja, PNBP, Denda)"]
+        S4 --> S5a["Kominfo POST /api/v2/billing/create"]
+        S5a --> S5b["Samsat Lock Tagihan (BILLING_LOCKED)<br/>Mencegah Double-Payment dari Loket/ATM Lain"]
     end
 
-    subgraph Payment["💳 Pembayaran (User ➔ BPD)"]
-        S5d --> S6["6. User Scan & Bayar QRIS<br/>(via Mobile Banking / e-Wallet mana saja)"]
+    subgraph Step4["4. 📱 Penerbitan Dynamic QRIS ASPI (Samsat ⇄ BPD ➔ Kominfo)"]
+        S5b --> S5c["Samsat Request QRIS ke BPD DIY<br/>(Samsat = Merchant Resmi Pemda DIY)"]
+        S5c --> S5d["BPD DIY Terbitkan Dynamic QRIS ASPI (TTL: 15 Menit)"]
+        S5d --> S5e["Samsat Return HTTP 200 OK ke Kominfo<br/>(Membawa billing_id, qr_string, expired_at)"]
+        S5e --> S5f["Kominfo Forward ke Mobile App JSS<br/>Render Dynamic QR & Timer Hitung Mundur 15m"]
     end
 
-    subgraph Notify["📣 Chain Notification (BPD ➔ Samsat ➔ Kominfo)"]
-        S6 --> S7a["7a. BPD Webhook ➔ Samsat<br/>(Konfirmasi dana masuk + ref_number)"]
-        S7a --> S7b["7b. Samsat Validasi, Bukukan LUNAS,<br/>Terbitkan NTPN & e-SKKP"]
-        S7b --> S7c["7c. Samsat Webhook ➔ Kominfo<br/>(Status PAID + e-SKKP URL)"]
-        S7c --> S7d["7d. Kominfo Push Notifikasi ke User"]
+    subgraph Step5["5. 💳 Pembayaran & Chain Webhook (User ➔ BPD ➔ Samsat ➔ Kominfo)"]
+        S5f --> S6["User Scan & Bayar QRIS via M-Banking / e-Wallet"]
+        S6 --> S7a["BPD Settlement Dana ➔ Webhook HMAC ke Samsat"]
+        S7a --> S7b["Samsat Validasi Signature, Bukukan Lunas Akumulasi,<br/>Terbitkan NTPN Resmi & Terbitkan e-SKKP Sah"]
+        S7b --> S7c["Samsat Kirim Webhook Berantai ke Kominfo (JSS)<br/>(Status SETTLED + NTPN + Dokumen e-SKKP URL)"]
+        S7c --> S7d["Kominfo Push Notifikasi Sukses ke Smartphone Warga"]
     end
 
-    subgraph Fallback["🔄 Fallback & Self-Healing"]
-        S7d --> S8["8. Status Check / Polling<br/>(jika webhook delay/gagal)"]
-        S8 --> S9["9. EOD Reconciliation<br/>(Nightly Batch — jaring pengaman akhir)"]
+    subgraph Step6["6. 📜 Bukti Pelunasan & Penerbitan Dokumen Sah e-SKKP Digital"]
+        S7d --> S8["Warga Buka Dokumen Sah e-SKKP di JSS<br/>(Kop Resmi Pemda DIY, Barcode Validasi Sah & NTPN Bank)<br/>Tanpa Perlu Datang Stempel Fisik ke Kantor Samsat"]
     end
 
-    style S0 fill:#2d1a4e,stroke:#9575cd,stroke-width:2px,color:#ffffff
-    style S1 fill:#003366,stroke:#4fc3f7,stroke-width:2px,color:#ffffff
-    style S2 fill:#003366,stroke:#4fc3f7,stroke-width:2px,color:#ffffff
-    style S3 fill:#003366,stroke:#4fc3f7,stroke-width:2px,color:#ffffff
-    style S4 fill:#003366,stroke:#4fc3f7,stroke-width:2px,color:#ffffff
-    style S5 fill:#5c2d00,stroke:#ffb74d,stroke-width:2px,color:#ffffff
-    style S5b fill:#5c2d00,stroke:#ffb74d,stroke-width:2px,color:#ffffff
-    style S5c fill:#5c2d00,stroke:#ffb74d,stroke-width:2px,color:#ffffff
-    style S5d fill:#5c2d00,stroke:#ffb74d,stroke-width:2px,color:#ffffff
-    style S6 fill:#4e2000,stroke:#ff8f00,stroke-width:2px,color:#ffffff
-    style S7a fill:#0b3d20,stroke:#81c784,stroke-width:2px,color:#ffffff
-    style S7b fill:#0b3d20,stroke:#81c784,stroke-width:2px,color:#ffffff
-    style S7c fill:#0b3d20,stroke:#81c784,stroke-width:2px,color:#ffffff
-    style S7d fill:#0b3d20,stroke:#81c784,stroke-width:2px,color:#ffffff
-    style S8 fill:#4a154b,stroke:#ba68c8,stroke-width:2px,color:#ffffff
-    style S9 fill:#1a237e,stroke:#7986cb,stroke-width:2px,color:#ffffff
+    subgraph Fallback["🔄 Fallback & Self-Healing (Jaring Pengaman)"]
+        S5f -.->|"Jika User Cek Status"| FB1["Status Check / Fallback Polling"]
+        S5f -.->|"Jika Timeout 15 Menit"| FB2["Samsat Cron Job: Auto-Release Lock Tagihan"]
+        S6 -.->|"Pukul 23:00 WIB"| FB3["EOD Reconciliation Batch (BPD ⇄ Samsat)"]
+    end
+
+    style Step1 fill:#002b4d,stroke:#0284c7,stroke-width:2px,color:#ffffff
+    style Step2 fill:#003366,stroke:#38bdf8,stroke-width:2px,color:#ffffff
+    style Step3 fill:#4a2800,stroke:#f59e0b,stroke-width:2px,color:#ffffff
+    style Step4 fill:#451a03,stroke:#d97706,stroke-width:2px,color:#ffffff
+    style Step5 fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ffffff
+    style Step6 fill:#065f46,stroke:#34d399,stroke-width:2px,color:#ffffff
+    style Fallback fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#ffffff
 ```
 
 ---
@@ -188,7 +186,10 @@ sequenceDiagram
 
 ---
 
-### 5.2. Tahap 1–4: Inquiry Data Pajak (Kominfo → Samsat)
+### 5.2. Tahap 1–4: Inquiry Data Pajak & Penegakan Aturan FIFO (Kominfo → Samsat)
+
+> [!IMPORTANT] Penegakan Aturan FIFO Biller Samsat & Akumulasi Multi-Tahun
+> Berdasarkan regulasi perpajakan daerah DIY, wajib pajak **tidak diperkenankan melompati tahun pajak tertunggak**. Pembayaran wajib dilakukan secara berurutan (*First In, First Out / FIFO*). Jika terdapat tunggakan 2 tahun (misal: 2025 tertunggak + 2026 berjalan), tagihan disatukan dalam **satu kode billing akumulasi** dan dilunasi sekaligus via satu QRIS BPD DIY.
 
 ```mermaid
 sequenceDiagram
@@ -198,46 +199,42 @@ sequenceDiagram
     participant KOM as Kominfo Backend
     participant SAM as Samsat DIY
 
-    note over KOM, SAM: Semua komunikasi menggunakan mTLS<br/>+ Header: X-API-Key + X-Request-ID (UUID)
+    note over KOM, SAM: Semua komunikasi menggunakan mTLS (Port 8443)<br/>+ Header: X-API-Key + X-Request-ID (UUID)
 
-    WP->>App: Buka menu "Bayar Pajak Kendaraan (PKB)"
+    WP->>App: Buka menu "Pajak Kendaraan (PKB)"
     App->>KOM: GET /pajak/kendaraan (session cookie)
-    KOM->>KOM: Ekstrak NIK dari server-side session (decrypt)
+    KOM->>KOM: Ekstrak NIK dari server-side session (decrypt AES-256)
 
-    %% Step 1: Verifikasi NIK
-    KOM->>SAM: GET /api/v2/wajib-pajak?nik={NIK}<br/>Header: X-API-Key, X-Request-ID, X-Timestamp
+    %% Step 1: Inquiry Kendaraan by NIK
+    KOM->>SAM: GET /api/v2/kendaraan?nik={NIK_MASKED}<br/>Header: X-API-Key, X-Request-ID, X-Timestamp
     SAM->>SAM: Validasi API Key & Timestamp (anti-replay < 5 menit)
-    SAM-->>KOM: 200 OK: { valid: true, nama: "...", kota: "..." }
+    SAM-->>KOM: 200 OK: { total: 2, data_kendaraan: [ { nopol: "AB 2481 XZ", model: "Honda Vario 160 ABS", status_tagihan: "MENUNGGAK_2_TAHUN", total_tagihan: 750000 }, { nopol: "AB 1892 YQ", model: "Toyota Avanza 1.5 G MT", status_tagihan: "PERIODE_BERJALAN", total_tagihan: 2450000 } ] }
+    KOM-->>App: Return daftar kendaraan (Live Data Samsat terenkripsi)
+    App-->>WP: Screen 1: Render daftar kendaraan terdaftar di DIY
 
-    %% Step 2: List Nopol
-    KOM->>SAM: GET /api/v2/kendaraan?nik={NIK}
-    SAM-->>KOM: 200 OK: [ { nopol, merk, tipe, warna, masa_berlaku_pajak } ]
-    KOM-->>App: Return daftar kendaraan (NIK tidak ikut dikirim ke client)
-    App-->>WP: Tampilkan daftar kendaraan milik user
+    %% Step 2: Inquiry Tahun Pajak & Aturan FIFO
+    WP->>App: Klik kendaraan "AB 2481 XZ"
+    App->>KOM: GET /pajak/nopol/AB2481XZ/tahun
+    KOM->>SAM: GET /api/v2/pajak/tahun?nopol=AB2481XZ
+    SAM-->>KOM: 200 OK: { unpaid_years: [ { card: 1, tahun: 2025, status: "TERTUNGGAK", pokok: 350000, denda: 50000, subtotal: 400000 }, { card: 2, tahun: 2026, status: "BERJALAN", pokok: 350000, denda: 0, subtotal: 350000 } ], total_akumulasi: 750000, paid_history: [ { tahun: 2024, ntpn: "NTPN-20241120-BPD6190", nominal: 335000, status: "LUNAS" }, { tahun: 2023, ntpn: "NTPN-20231118-BPD5102", nominal: 330000, status: "LUNAS" } ] }
+    KOM-->>App: Return riwayat tagihan terstruktur
+    App-->>WP: Screen 2: Render Card 1 (2025 Tertunggak) + Card 2 (2026 Berjalan)<br/>& List Bawah: Riwayat Lunas (Akses Arsip e-SKKP)
 
-    %% Step 3: Tahun Pajak per Nopol
-    WP->>App: Pilih nopol "AB 1234 CD"
-    App->>KOM: GET /pajak/nopol/AB1234CD/tahun
-    KOM->>SAM: GET /api/v2/pajak/tahun?nopol=AB1234CD
-    SAM-->>KOM: 200 OK: [ { tahun: 2025, status: "BELUM_LUNAS" }, { tahun: 2026, ... } ]
-    KOM-->>App: Return daftar tahun pajak tertunggak
-    App-->>WP: Tampilkan pilihan tahun pajak
-
-    %% Step 4: Rincian Tagihan
-    WP->>App: Pilih tahun 2026
-    App->>KOM: GET /pajak/nopol/AB1234CD/detail?tahun=2026
-    KOM->>SAM: GET /api/v2/pajak/detail?nopol=AB1234CD&tahun=2026
-    SAM-->>KOM: 200 OK: { pkb: 500000, swdkllj: 143000, pnbp: 50000, denda: 0, total: 693000, kadaluarsa_at: "2026-12-31" }
-    KOM-->>App: Return rincian tagihan
-    App-->>WP: Tampilkan billing summary & tombol "Bayar QRIS"
+    %% Step 3: Rincian Akumulasi Tagihan Resmi
+    WP->>App: Klik "Bayar Akumulasi 2 Tahun (Rp 750.000)"
+    App->>KOM: GET /pajak/nopol/AB2481XZ/detail?mode=accumulation
+    KOM->>SAM: GET /api/v2/pajak/detail?nopol=AB2481XZ&mode=accumulation
+    SAM-->>KOM: 200 OK: { pkb_pokok: 630000, swdkllj_pokok: 70000, pnbp: 0, denda_akumulasi: 50000, total_akumulasi: 750000, masa_pajak_baru: "28 November 2027" }
+    KOM-->>App: Return rincian resmi Samsat
+    App-->>WP: Screen 3: Render Breakdown Resmi Biaya & Tombol "Bayar dengan QRIS BPD DIY"
 ```
 
 ---
 
-### 5.3. Tahap 5: Generate Billing & QRIS (Kominfo → Samsat → BPD)
+### 5.3. Tahap 5: Generate Billing & Dynamic QRIS ASPI (Kominfo → Samsat → BPD)
 
 > [!NOTE] Mengapa Samsat yang request ke BPD (bukan Kominfo)?
-> Samsat adalah **Merchant resmi** BPD DIY berdasarkan perjanjian kerjasama perbankan. Kominfo bukan PJP (Penyelenggara Jasa Pembayaran) dan tidak memiliki izin BI untuk menerbitkan instrumen pembayaran. Skema ini sesuai regulasi Bank Indonesia.
+> Samsat adalah **Merchant resmi** BPD DIY berdasarkan perjanjian kerjasama perbankan rekening RKUD Pemda DIY. Kominfo bukan PJP (Penyelenggara Jasa Pembayaran) dan tidak memiliki izin BI untuk menerbitkan instrumen pembayaran. Skema ini patuh 100% pada regulasi Bank Indonesia.
 
 ```mermaid
 sequenceDiagram
@@ -248,28 +245,30 @@ sequenceDiagram
     participant SAM as Samsat DIY
     participant BPD as BPD DIY
 
-    WP->>App: Klik "Bayar via QRIS"
-    App->>KOM: POST /pajak/billing/create<br/>Body: { nopol, tahun }
+    WP->>App: Klik "Bayar dengan QRIS BPD DIY (Rp 750.000)"
+    App->>KOM: POST /pajak/billing/create<br/>Body: { nopol: "AB 2481 XZ", periode: "2025 - 2026" }
 
     KOM->>KOM: 1. Generate trx_kominfo_id (UUID v4)<br/>2. Set status internal: INITIATED
 
     note over KOM, SAM: Timeout: 15 detik | Retry: 0 (non-idempotent create)
-    KOM->>SAM: POST /api/v2/billing/create<br/>Body: { trx_kominfo_id, nopol, tahun, nominal, callback_url }<br/>Header: X-API-Key, X-Request-ID: trx_kominfo_id, X-Timestamp
+    KOM->>SAM: POST /api/v2/billing/create<br/>Body: { trx_kominfo_id, nopol: "AB 2481 XZ", periode: "2025 - 2026", total_nominal: 750000 }<br/>Header: X-API-Key, X-Request-ID: trx_kominfo_id, X-Timestamp
 
-    SAM->>SAM: 1. Validasi API Key & Timestamp<br/>2. Cek tidak ada billing aktif untuk nopol+tahun ini<br/>3. Lock tagihan (status: BILLING_LOCKED)<br/>4. Generate billing_samsat_id (UUID v4)<br/>5. Simpan: billing_samsat_id ↔ trx_kominfo_id
+    SAM->>SAM: 1. Validasi API Key & Timestamp (Anti-Replay < 5 menit)<br/>2. Cek tidak ada billing aktif untuk nopol ini<br/>3. Lock tagihan: BILLING_LOCKED (Mencegah Double-Payment Loket/ATM)<br/>4. Generate billing_samsat_id: "BILL-DIY-XXXX"<br/>5. Simpan pemetaan: billing_samsat_id ↔ trx_kominfo_id
 
     note over SAM, BPD: Timeout: 10 detik | Retry: 3x (exp backoff)
-    SAM->>BPD: POST /api/v1/qris/generate<br/>Body: { merchant_id, billing_samsat_id, nominal: 693000, expired_minutes: 15 }<br/>Header: X-API-Key (Samsat), X-Idempotency-Key: billing_samsat_id
+    SAM->>BPD: POST /api/v1/qris/generate [Merchant: SAMSAT PROVINSI DIY]<br/>Body: { merchant_id: "BPD-DIY-SAMSAT-01", billing_samsat_id: "BILL-DIY-XXXX", amount: 750000, expired_minutes: 15 }<br/>Header: X-API-Key (Samsat), X-Idempotency-Key: billing_samsat_id
 
-    BPD->>BPD: Generate QR String & Payload ASPI/BI standard
-    BPD-->>SAM: 200 OK: { bpd_trx_id, qr_string, qr_image_url, expired_at }
+    BPD->>BPD: 1. Validasi Merchant ID Samsat<br/>2. Generate Dynamic QRIS string & Payload ASPI/BI standard
+    BPD-->>SAM: 200 OK: { bpd_trx_id: "BPD-QR-XXXX", qr_string: "00020101021226600016ID.GO.DIY.BPD01...", expired_at: "2026-11-06T13:15:00Z" }
 
     SAM->>SAM: 1. Simpan: billing_samsat_id ↔ bpd_trx_id<br/>2. Update status: QRIS_GENERATED
-    SAM-->>KOM: 200 OK: { billing_samsat_id, qr_string, qr_image_url, nominal: 693000, expired_at }
 
-    KOM->>KOM: 1. Update status: QRIS_GENERATED<br/>2. Simpan referensi billing_samsat_id
-    KOM-->>App: Return { qr_string, qr_image_url, expired_at, nominal }
-    App-->>WP: Render QRIS Dinamis + Timer Hitung Mundur (15 menit)
+    note over SAM, KOM: Balikan HTTP 200 OK dari Samsat ke Kominfo (Menutup Request Sinkron)
+    SAM-->>KOM: 200 OK: { status: "BILLING_LOCKED", billing_samsat_id: "BILL-DIY-XXXX", trx_kominfo_id, nopol: "AB 2481 XZ", total_nominal: 750000, qr_string, expired_at, merchant: "SAMSAT PROVINSI D.I. YOGYAKARTA", pjp: "BANK BPD DIY" }
+
+    KOM->>KOM: 1. Update status transaksi lokal: QRIS_GENERATED<br/>2. Simpan referensi billing_samsat_id
+    KOM-->>App: Return { qr_string, billing_id, expired_at, nominal: 750000 }
+    App-->>WP: Screen 4: Render Dynamic QRIS ASPI BPD DIY + Timer Countdown (15 Menit)
 ```
 
 **Penanganan Kasus Error Generate Billing:**
@@ -319,10 +318,23 @@ sequenceDiagram
 
     KOM-->>SAM: HTTP 200 OK: { status: "ACK" }
 
-    note over KOM, App: ⬇️ STEP 3: Kominfo Notifikasi ke User
-    KOM-->>App: WebSocket Push / FCM Push Notification:<br/>{ status: "LUNAS", nopol, tahun, ntpn, skkp_url }
-    App-->>WP: 🎉 Tampilkan "Pembayaran Berhasil!"<br/>+ Rincian NTPN + Tombol "Unduh e-SKKP"
+    note over KOM, App: ⬇️ STEP 3: Kominfo Notifikasi ke User & Penerbitan e-SKKP
+    KOM-->>App: WebSocket Push / FCM Push Notification:<br/>{ status: "SETTLED", nopol: "AB 2481 XZ", ntpn: "NTPN-20261106-BPD9812", total: 750000, skkp_url }
+    App-->>WP: Screen 5: 🎉 Tampilkan "Pembayaran Berhasil!"<br/>(Ringkasan NTPN Resmi Bank BPD DIY & Masa Pajak Baru: 28 Nov 2027)
+    WP->>App: Klik "Buka Dokumen e-SKKP Sah"
+    App-->>WP: Screen 6: Render In-App Dokumen Digital e-SKKP Sah<br/>(Kop Resmi Pemda DIY, Barcode Kepolisian, Bebas Cap Fisik)
 ```
+
+---
+
+### 5.4.1. Spesifikasi Dokumen Sah Elektronik e-SKKP (In-App Digital Viewer)
+
+> [!TIP] Efisiensi Pelayanan Publik (Paperless & Keabsahan Hukum Penuh)
+> Surat Ketetapan Kewajiban Pembayaran Elektronik (**e-SKKP**) yang diterbitkan oleh Samsat DIY melalui JSS memiliki kekuatan hukum yang sah dan setara dengan SKKP cetak fisik berdasarkan UU ITE No. 1/2024 dan Peraturan Gubernur DIY:
+> 1. **Kop Resmi**: Pemerintah Daerah D.I. Yogyakarta – Badan Pengelola Keuangan dan Aset Daerah (BPKAD) – Samsat DIY.
+> 2. **Tervalidasi Bank Persepsi**: Tercantum Nomor Transaksi Pembayaran Pajak (**NTPN**) unik dari Bank BPD DIY (`NTPN-20261106-BPD9812`).
+> 3. **Barcode QR Verifikasi Sah**: Dapat dipindai sewaktu-waktu oleh petugas kepolisian lalu lintas saat pemeriksaan di jalan tanpa memerlukan stempel cap basah fisik ke kantor Samsat.
+> 4. **Arsip Digital Permanen**: Tersimpan permanen di akun JSS warga dan dapat diunduh (PDF) atau dibagikan kapan saja.
 
 ---
 
@@ -495,22 +507,22 @@ flowchart TD
 
 ### 6.1. Daftar Endpoint Lengkap
 
-| No | Endpoint | Versi | Pengirim | Penerima | Fungsi |
+| No | Endpoint | Versi | Pengirim | Penerima | Fungsi & Deskripsi Teknis |
 |---|---|---|---|---|---|
-| 1 | `GET /api/v2/wajib-pajak?nik={nik}` | v2 | Kominfo | Samsat | Verifikasi kepemilikan NIK |
-| 2 | `GET /api/v2/kendaraan?nik={nik}` | v2 | Kominfo | Samsat | Daftar kendaraan per NIK |
-| 3 | `GET /api/v2/pajak/tahun?nopol={nopol}` | v2 | Kominfo | Samsat | Daftar tahun pajak tertunggak |
-| 4 | `GET /api/v2/pajak/detail?nopol={nopol}&tahun={tahun}` | v2 | Kominfo | Samsat | Rincian nominal tagihan resmi |
-| 5 | `POST /api/v2/billing/create` | v2 | Kominfo | Samsat | Request billing + lock tagihan |
-| 6 | `GET /api/v2/billing/status?billing_samsat_id={id}` | v2 | Kominfo | Samsat | Cek status billing (fallback) |
-| 7 | `DELETE /api/v2/billing/{billing_samsat_id}` | v2 | Kominfo | Samsat | Cancel billing (opsional) |
-| 8 | `POST /api/v1/qris/generate` | v1 | Samsat | BPD DIY | Request QRIS dinamis ke bank |
-| 9 | `GET /api/v1/qris/status?bpd_trx_id={id}` | v1 | Samsat | BPD DIY | Inquiry status QRIS ke bank |
-| 10 | `POST /webhook/v2/payment-notification` | v2 | BPD DIY | Samsat | Webhook bayar BPD → Samsat |
-| 11 | `POST /webhook/v2/payment-success` | v2 | Samsat | Kominfo | Webhook sukses Samsat → Kominfo (+ e-SKKP) |
-| 12 | `POST /webhook/v2/billing-expired` | v2 | Samsat | Kominfo | Notifikasi QRIS kadaluarsa |
-| 13 | `GET /pajak/status?trx_id={trx_kominfo_id}` | v1 | App Client | Kominfo | Status check dari app user |
-| 14 | *(Batch)* `GET /api/v1/eod-report?date={YYYY-MM-DD}` | v1 | Samsat | BPD DIY | Laporan rekonsiliasi harian |
+| 1 | `GET /api/v2/wajib-pajak?nik={nik}` | v2 | Kominfo | Samsat | Verifikasi kepemilikan NIK terverifikasi di Samsat DIY |
+| 2 | `GET /api/v2/kendaraan?nik={nik}` | v2 | Kominfo | Samsat | Daftar kendaraan aktif per NIK (status tunggakan & preview nominal) |
+| 3 | `GET /api/v2/pajak/tahun?nopol={nopol}` | v2 | Kominfo | Samsat | Riwayat tahun pajak: `unpaid_years` (FIFO) & `paid_history` (Arsip) |
+| 4 | `GET /api/v2/pajak/detail?nopol={nopol}&mode=accumulation` | v2 | Kominfo | Samsat | Rincian nominal resmi akumulasi Samsat (PKB, SWDKLLJ, Denda) |
+| 5 | `POST /api/v2/billing/create` | v2 | Kominfo | Samsat | Request billing + lock tagihan akumulasi (Anti Double-Payment) |
+| 6 | `GET /api/v2/billing/status?billing_samsat_id={id}` | v2 | Kominfo | Samsat | Cek status billing (fallback self-healing) |
+| 7 | `DELETE /api/v2/billing/{billing_samsat_id}` | v2 | Kominfo | Samsat | Cancel billing & pelepasan lock sebelum bayar |
+| 8 | `POST /api/v1/qris/generate` | v1 | Samsat | BPD DIY | Request QRIS dinamis ASPI oleh Samsat selaku Merchant Pemda DIY |
+| 9 | `GET /api/v1/qris/status?bpd_trx_id={id}` | v1 | Samsat | BPD DIY | Inquiry status QRIS ke core banking BPD DIY |
+| 10 | `POST /webhook/v2/payment-notification` | v2 | BPD DIY | Samsat | Webhook pelunasan dana BPD → Samsat (HMAC SHA-256) |
+| 11 | `POST /webhook/v2/payment-success` | v2 | Samsat | Kominfo | Webhook berantai sukses Samsat → Kominfo (+ NTPN & e-SKKP) |
+| 12 | `POST /webhook/v2/billing-expired` | v2 | Samsat | Kominfo | Notifikasi otomatis pelepasan lock tagihan (TTL 15 menit) |
+| 13 | `GET /pajak/status?trx_id={trx_kominfo_id}` | v1 | App Client | Kominfo | Status check polling dari app user |
+| 14 | *(Batch)* `GET /api/v1/eod-report?date={YYYY-MM-DD}` | v1 | Samsat | BPD DIY | Laporan rekonsiliasi harian (Nightly Batch) |
 
 ### 6.2. Canonical Idempotency Key per Tahap
 
@@ -523,6 +535,138 @@ flowchart TD
 | Webhook BPD → Samsat | `bpd_trx_id` (dibuat BPD, source of truth finansial) | Samsat |
 | Webhook Samsat → Kominfo | `billing_samsat_id` | Kominfo |
 | Cancel Billing | `billing_samsat_id` | Samsat |
+
+---
+
+### 6.3. Standar Payload API Sesuai Prototype Implementasi
+
+#### A. Response `GET /api/v2/kendaraan?nik=...` (Step 1)
+```json
+{
+  "status": "SUCCESS",
+  "nik": "347101******0002",
+  "nama_pemilik": "RADEN MAS DANANG P.",
+  "total_kendaraan": 2,
+  "data_kendaraan": [
+    {
+      "nopol": "AB 2481 XZ",
+      "merk": "Honda",
+      "tipe": "Vario 160 ABS (2022)",
+      "no_rangka": "MH1KF8123NK098124",
+      "no_mesin": "KF81E1928371",
+      "masa_pajak": "28 Nov 2026",
+      "status_tagihan": "MENUNGGAK_2_TAHUN",
+      "tagihan": {
+        "periode_akumulasi": [2025, 2026],
+        "total_nominal": 750000,
+        "ada_denda": true
+      }
+    },
+    {
+      "nopol": "AB 1892 YQ",
+      "merk": "Toyota",
+      "tipe": "Avanza 1.5 G MT (2021)",
+      "no_rangka": "MHFM2BA31NK019821",
+      "no_mesin": "2NRE8192831",
+      "masa_pajak": "15 Apr 2027",
+      "status_tagihan": "PERIODE_BERJALAN",
+      "tagihan": {
+        "periode_akumulasi": [2027],
+        "total_nominal": 2450000,
+        "ada_denda": false
+      }
+    }
+  ]
+}
+```
+
+#### B. Response `GET /api/v2/pajak/tahun?nopol=AB2481XZ` (Step 2 - Aturan FIFO)
+```json
+{
+  "nopol": "AB 2481 XZ",
+  "unpaid_years": [
+    {
+      "card_num": 1,
+      "tahun": 2025,
+      "status": "TERTUNGGAK",
+      "label": "[Card 1] Tahun Pajak 2025 (Tertunggak 12 Bulan)",
+      "jatuh_tempo": "28 November 2025",
+      "pokok_pkb_swdkllj": 350000,
+      "denda": 50000,
+      "subtotal": 400000
+    },
+    {
+      "card_num": 2,
+      "tahun": 2026,
+      "status": "BERJALAN",
+      "label": "[Card 2] Tahun Pajak 2026 (Periode Berjalan)",
+      "jatuh_tempo": "28 November 2026",
+      "pokok_pkb_swdkllj": 350000,
+      "denda": 0,
+      "subtotal": 350000
+    }
+  ],
+  "total_akumulasi": 750000,
+  "paid_history": [
+    {
+      "tahun": 2024,
+      "nominal": 335000,
+      "ntpn": "NTPN-20241120-BPD6190",
+      "status": "LUNAS",
+      "tgl_bayar": "20 November 2024"
+    },
+    {
+      "tahun": 2023,
+      "nominal": 330000,
+      "ntpn": "NTPN-20231118-BPD5102",
+      "status": "LUNAS",
+      "tgl_bayar": "18 November 2023"
+    }
+  ]
+}
+```
+
+#### C. Request & Response `POST /api/v2/billing/create` (Step 3 & 4)
+**Request (Kominfo ➔ Samsat):**
+```json
+{
+  "trx_kominfo_id": "trx-jss-1793943787788",
+  "nopol": "AB 2481 XZ",
+  "periode": "2025 - 2026",
+  "total_nominal": 750000
+}
+```
+
+**Response (Samsat ➔ Kominfo):**
+```json
+{
+  "status": "BILLING_LOCKED",
+  "billing_samsat_id": "BILL-DIY-20261106-9812",
+  "trx_kominfo_id": "trx-jss-1793943787788",
+  "nopol": "AB 2481 XZ",
+  "periode": "2025 - 2026",
+  "total_nominal": 750000,
+  "qr_string": "00020101021226600016ID.GO.DIY.BPD01...",
+  "expired_at": "2026-11-06T13:15:00Z",
+  "merchant": "SAMSAT PROVINSI D.I. YOGYAKARTA",
+  "pjp": "BANK BPD DIY"
+}
+```
+
+#### D. Webhook Chain `POST /webhook/v2/payment-success` (Step 5 & 6)
+**Samsat ➔ Kominfo:**
+```json
+{
+  "billing_samsat_id": "BILL-DIY-20261106-9812",
+  "nopol": "AB 2481 XZ",
+  "periode": "2025 - 2026",
+  "ntpn": "NTPN-20261106-BPD9812",
+  "status": "SETTLED",
+  "total_bayar": 750000,
+  "masa_pajak_baru": "28 November 2027",
+  "skkp_download_url": "https://samsat.jogjaprov.go.id/eskkp/download/NTPN-20261106-BPD9812"
+}
+```
 
 ---
 
