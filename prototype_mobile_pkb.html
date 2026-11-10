@@ -118,20 +118,20 @@
           </div>
 
           <!-- TOP APP BAR (JSS SIGNATURE BLUE GRADIENT & LOGO) -->
-          <div class="px-4 py-3 jss-gradient-header text-white flex items-center justify-between z-30 shadow-md">
-            <div class="flex items-center gap-2.5">
-              <button id="btnBackScreen" onclick="goBackScreen()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white hidden transition">
+          <div class="px-3.5 py-3 jss-gradient-header text-white flex items-center justify-between z-30 shadow-md">
+            <div class="flex items-center gap-2">
+              <button id="btnBackScreen" onclick="goBackScreen()" title="Kembali ke Beranda Utama JSS" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white transition flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
               
               <!-- JSS Badge in App -->
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex flex-col items-center justify-center font-black text-white shadow-inner">
-                  <span class="text-[11px] leading-tight">JSS</span>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white/15 border border-white/20 flex flex-col items-center justify-center font-black text-white shadow-inner flex-shrink-0">
+                  <span class="text-[10px] leading-tight">JSS</span>
                 </div>
                 <div>
-                  <h2 id="screenTitle" class="text-xs font-bold text-white leading-tight tracking-tight">Jogja Smart Service</h2>
-                  <p id="screenSubTitle" class="text-[10px] text-blue-100/90 leading-none mt-0.5">Pajak Kendaraan (SAMSAT DIY)</p>
+                  <h2 id="screenTitle" class="text-xs font-bold text-white leading-tight tracking-tight">Pajak Kendaraan (PKB)</h2>
+                  <p id="screenSubTitle" class="text-[9.5px] text-blue-100/90 leading-none mt-0.5">Portal JSS • SAMSAT DIY</p>
                 </div>
               </div>
             </div>
@@ -727,29 +727,41 @@
 
           </div>
 
-          <!-- BOTTOM NAVIGATION BAR (JSS STYLE: BERANDA, LAYANAN, NOTIFIKASI, AKUN) -->
-          <div class="p-2.5 bg-white border-t border-slate-200/90 grid grid-cols-4 text-center text-[10px] font-semibold text-slate-500 z-30 shadow-lg">
-            <div onclick="goBackToStart()" class="flex flex-col items-center cursor-pointer text-[#0a4f9d]">
-              <svg class="w-4 h-4 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-              <span>Beranda</span>
-            </div>
-            <div class="flex flex-col items-center cursor-pointer hover:text-[#0a4f9d] transition-colors">
-              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-              <span>Layanan</span>
-            </div>
-            <div class="flex flex-col items-center cursor-pointer hover:text-[#0a4f9d] transition-colors">
-              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-              <span>Notifikasi</span>
-            </div>
-            <div class="flex flex-col items-center cursor-pointer hover:text-[#0a4f9d] transition-colors">
-              <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              <span>Akun JSS</span>
-            </div>
+          <!-- HOME INDICATOR BAR (IOS STYLE - CLEAN EMBEDDED SUB-SERVICE VIEW) -->
+          <div class="pb-2 pt-1.5 flex justify-center bg-white border-t border-slate-100">
+            <div class="w-28 h-1 bg-slate-300 rounded-full"></div>
           </div>
 
-          <!-- HOME INDICATOR BAR (IOS STYLE) -->
-          <div class="pb-1.5 pt-0.5 flex justify-center bg-white">
-            <div class="w-28 h-1 bg-slate-300 rounded-full"></div>
+          <!-- TOAST SIMULASI EXIT TO JSS PORTAL -->
+          <div id="toastExitJss" class="absolute top-16 left-4 right-4 bg-slate-900/95 text-white p-3 rounded-2xl shadow-xl z-50 flex items-center gap-2.5 hidden border border-slate-700 transition">
+            <div class="w-7 h-7 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[11px] font-bold text-white">Kembali ke Beranda Utama JSS</p>
+              <p class="text-[9.5px] text-slate-300">Layanan Pajak Kendaraan DIY ditutup (Simulasi).</p>
+            </div>
+            <button onclick="document.getElementById('toastExitJss').classList.add('hidden')" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+          </div>
+
+          <!-- MODAL CONFIRMATION EXIT TO JSS -->
+          <div id="modalExitJss" class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-5 hidden transition-all">
+            <div class="bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 text-center w-full max-w-[280px]">
+              <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-[#0a4f9d] flex items-center justify-center mb-2.5 shadow-xs">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+              </div>
+              <h3 class="text-xs font-bold text-slate-900">Kembali ke Beranda JSS?</h3>
+              <p class="text-[10.5px] text-slate-500 mt-1 leading-relaxed">Anda akan meninggalkan menu Layanan Pajak Kendaraan dan kembali ke beranda aplikasi Jogja Smart Service.</p>
+              
+              <div class="mt-4 space-y-2">
+                <button onclick="confirmExitToJss()" class="w-full py-2.5 rounded-xl bg-[#0a4f9d] text-white text-[11px] font-bold hover:bg-blue-800 transition shadow-xs active:scale-95">
+                  Ya, Keluar ke Beranda JSS
+                </button>
+                <button onclick="closeExitJssModal()" class="w-full py-2 rounded-xl bg-slate-100 text-slate-600 text-[10.5px] font-semibold hover:bg-slate-200 transition">
+                  Tetap di Layanan Ini
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -1349,10 +1361,13 @@
       document.getElementById('screenSubTitle').innerText = subTitle;
       
       const btnBack = document.getElementById('btnBackScreen');
-      if (showBack) {
+      if (btnBack) {
         btnBack.classList.remove('hidden');
-      } else {
-        btnBack.classList.add('hidden');
+        if (screenId === 'screenVehicles') {
+          btnBack.title = 'Kembali ke Beranda Utama JSS';
+        } else {
+          btnBack.title = 'Kembali ke Halaman Sebelumnya';
+        }
       }
 
       const topBadge = document.getElementById('topBarRightBadge');
@@ -1788,8 +1803,11 @@
 
     // Back Button Handler (Tetap di dalam HP)
     function goBackScreen() {
-      if (currentStep === 2) {
-        showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+      if (currentStep === 1) {
+        // Pada halaman awal sub-layanan, tombol back mengembalikan warga ke Beranda Utama Super-App JSS
+        showExitJssModal();
+      } else if (currentStep === 2) {
+        showScreen('screenVehicles', 'Pajak Kendaraan (PKB)', 'Portal JSS • SAMSAT DIY', true);
         currentStep = 1;
         updateStateUI('READY', 0);
       } else if (currentStep === 3) {
@@ -1802,9 +1820,13 @@
           currentStep = 3;
           updateFlowchartStep(3);
         }
+      } else if (currentStep === 5) {
+        showScreen('screenVehicles', 'Pajak Kendaraan (PKB)', 'Portal JSS • SAMSAT DIY', true);
+        currentStep = 1;
+        updateStateUI('READY', 0);
       } else if (currentStep === 6) {
         if (currentSelectedYearData && (currentSelectedYearData.status === 'BELUM_LUNAS' || currentSelectedYearData.isAccumulated)) {
-          showScreen('screenSuccess', 'Status Pelunasan Sah', 'Samsat DIY & BPD DIY', false);
+          showScreen('screenSuccess', 'Status Pelunasan Sah', 'Samsat DIY & BPD DIY', true);
           currentStep = 5;
           updateFlowchartStep(5);
         } else {
@@ -1815,8 +1837,30 @@
       }
     }
 
+    function showExitJssModal() {
+      const modal = document.getElementById('modalExitJss');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeExitJssModal() {
+      const modal = document.getElementById('modalExitJss');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function confirmExitToJss() {
+      closeExitJssModal();
+      const toast = document.getElementById('toastExitJss');
+      if (toast) {
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 3500);
+      }
+      logTrace('SUCCESS', 'Kominfo (JSS)', 'Navigasi: Warga menekan tombol [<- Kembali]. Menutup layanan Pajak Kendaraan dan kembali ke Beranda Portal JSS.');
+    }
+
     function goBackToStart() {
-      showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+      showScreen('screenVehicles', 'Pajak Kendaraan (PKB)', 'Portal JSS • SAMSAT DIY', true);
       currentStep = 1;
       updateStateUI('IDLE / READY', 0);
     }
@@ -1879,7 +1923,7 @@
       currentSelectedYearData = null;
       billingId = 'BILL-DIY-' + Math.floor(1000 + Math.random() * 9000);
       currentNtpn = 'NTPN-20261106-BPD' + Math.floor(1000 + Math.random() * 9000);
-      showScreen('screenVehicles', 'Jogja Smart Service', 'Pajak Kendaraan (SAMSAT DIY)', false);
+      showScreen('screenVehicles', 'Pajak Kendaraan (PKB)', 'Portal JSS • SAMSAT DIY', true);
       updateStateUI('IDLE / READY', 0);
       renderInitialInquiryLog();
     }
